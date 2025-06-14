@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'viewmodels/conch_vm.dart';
-import 'views/screens/home_screen.dart';
 import 'services/shake_detector_service.dart';
-import 'classic_conch_screen.dart';
-import 'culinary_oracle_screen.dart';
-import 'abyss_screen.dart';
+import 'views/screens/classic_conch_screen.dart';
+import 'views/screens/culinary_oracle_screen.dart';
+import 'views/screens/abyss_screen.dart';
 
 void main() {
   runApp(const TheConchApp());
@@ -29,8 +28,7 @@ class TheConchApp extends StatelessWidget {
         ),
         home: const ConchHomePage(),
         debugShowCheckedModeBanner: false,
-   
-    )
+      ),
     );
   }
 }

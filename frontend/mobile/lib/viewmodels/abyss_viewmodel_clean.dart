@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../api_service.dart';
+import 'package:theconch/services/api_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class AbyssViewModel extends ChangeNotifier {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../api_service.dart';
+import 'package:theconch/services/api_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -22,14 +22,15 @@ class ClassicConchViewModel extends ChangeNotifier {
       isPlayingAudio = state == PlayerState.playing;
       notifyListeners();
     });
-    
+
     // Initialize speech to text
     _initSpeech();
-  }  void _initSpeech() async {
+  }
+  void _initSpeech() async {
     _speechEnabled = await _speechToText.initialize(
       onError: (errorNotification) {
         print('Speech recognition error: ${errorNotification.errorMsg}');
-        
+
         // Delay error messages to give users more time
         Future.delayed(const Duration(seconds: 2), () {
           if (isListening) {
@@ -37,26 +38,32 @@ class ClassicConchViewModel extends ChangeNotifier {
             String userFriendlyError;
             switch (errorNotification.errorMsg) {
               case 'error_speech_timeout':
-                userFriendlyError = 'No speech detected. Take your time and try speaking again.';
+                userFriendlyError =
+                    'No speech detected. Take your time and try speaking again.';
                 break;
               case 'error_no_match':
-                userFriendlyError = 'Could not understand speech. Please speak more clearly.';
+                userFriendlyError =
+                    'Could not understand speech. Please speak more clearly.';
                 break;
               case 'error_network':
-                userFriendlyError = 'Network error - check your internet connection';
+                userFriendlyError =
+                    'Network error - check your internet connection';
                 break;
               case 'error_network_timeout':
                 userFriendlyError = 'Network timeout - please try again';
                 break;
               case 'error_audio':
-                userFriendlyError = 'Audio error - check microphone permissions';
+                userFriendlyError =
+                    'Audio error - check microphone permissions';
                 break;
               default:
-                userFriendlyError = 'Speech recognition error. Please try again.';
+                userFriendlyError =
+                    'Speech recognition error. Please try again.';
             }
-            
+
             errorMessage = userFriendlyError;
-            spokenText = 'Ready to listen again. Tap "Ask with Voice" when ready.';
+            spokenText =
+                'Ready to listen again. Tap "Ask with Voice" when ready.';
             isListening = false;
             notifyListeners();
           }
@@ -106,7 +113,9 @@ class ClassicConchViewModel extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
-  }  Future<void> startListening() async {
+  }
+
+  Future<void> startListening() async {
     // Request microphone permission
     var status = await Permission.microphone.request();
     if (status != PermissionStatus.granted) {
@@ -134,7 +143,7 @@ class ClassicConchViewModel extends ChangeNotifier {
             recognizedWords = result.recognizedWords;
             if (recognizedWords.isNotEmpty) {
               spokenText = 'You said: "$recognizedWords"';
-              
+
               // Only auto-stop if we have a complete sentence and final result
               if (result.finalResult && recognizedWords.length > 3) {
                 Future.delayed(const Duration(seconds: 1), () {
@@ -149,7 +158,9 @@ class ClassicConchViewModel extends ChangeNotifier {
             notifyListeners();
           },
           listenFor: const Duration(seconds: 30), // Much longer timeout
-          pauseFor: const Duration(seconds: 5), // Longer pause detection to allow slow speech
+          pauseFor: const Duration(
+            seconds: 5,
+          ), // Longer pause detection to allow slow speech
           partialResults: true,
           localeId: 'en_US',
           cancelOnError: false, // Don't cancel immediately on errors
@@ -163,15 +174,16 @@ class ClassicConchViewModel extends ChangeNotifier {
       }
     }
   }
+
   Future<void> stopListening() async {
     if (isListening) {
       await _speechToText.stop();
       isListening = false;
-      
+
       if (recognizedWords.isNotEmpty) {
         spokenText = 'Processing: "$recognizedWords"';
         notifyListeners();
-        
+
         // Send the recognized text to the API
         await pullTheStringWithVoice(recognizedWords);
       } else {
@@ -224,7 +236,8 @@ class ClassicConchViewModel extends ChangeNotifier {
         notifyListeners();
       }
     }
-  }  
+  }
+
   // Reset speech recognition state
   void resetSpeechState() {
     isListening = false;
