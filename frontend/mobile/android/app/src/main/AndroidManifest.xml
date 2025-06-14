@@ -12,7 +12,9 @@
     <!-- Storage permission for recording files -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-     <application
+ <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <application
         android:label="theconch"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"

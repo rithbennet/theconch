@@ -65,6 +65,9 @@ dependencies:
   # Path provider for file handling
   path_provider: ^2.1.1
 
+  #Implement Location Services
+  geolocator: ^10.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
