@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'viewmodels/classic_conch_viewmodel.dart';
+import '../../viewmodels/classic_conch_viewmodel.dart';
 
 class ClassicConchScreen extends StatelessWidget {
   const ClassicConchScreen({super.key});

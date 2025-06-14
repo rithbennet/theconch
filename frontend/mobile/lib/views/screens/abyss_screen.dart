@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'viewmodels/culinary_oracle_viewmodel.dart';
+import '../../viewmodels/abyss_viewmodel.dart';
 
-class CulinaryOracleScreen extends StatelessWidget {
-  const CulinaryOracleScreen({super.key});
+class AbyssScreen extends StatelessWidget {
+  const AbyssScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => CulinaryOracleViewModel(),
-      child: Consumer<CulinaryOracleViewModel>(
+      create: (_) => AbyssViewModel(),
+      child: Consumer<AbyssViewModel>(
         builder: (context, vm, child) => Scaffold(
           backgroundColor: const Color(0xFF0D1B2A),
           appBar: AppBar(
@@ -18,7 +18,7 @@ class CulinaryOracleScreen extends StatelessWidget {
             elevation: 0,
             centerTitle: true,
             title: Text(
-              'Culinary Oracle',
+              'Ask the Abyss',
               style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w600,
                 fontSize: 22,
@@ -33,7 +33,7 @@ class CulinaryOracleScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Hungry? Let the Oracle decide your next meal!',
+                  'Peer into the unknown. Ask anything.',
                   style: GoogleFonts.lato(
                     fontSize: 16,
                     fontStyle: FontStyle.italic,
@@ -61,15 +61,15 @@ class CulinaryOracleScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons.restaurant_menu,
+                              Icons.psychology,
                               size: 80,
                               color: const Color(0xFFFF6B6B),
                             ),
                             const SizedBox(height: 8),
-                            Text('🍲', style: const TextStyle(fontSize: 60)),
+                            Text('🌊', style: const TextStyle(fontSize: 60)),
                             const SizedBox(height: 8),
                             Text(
-                              'Culinary Oracle',
+                              'The Abyss',
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -81,15 +81,36 @@ class CulinaryOracleScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 32),
+                    TextField(
+                      controller: vm.controller,
+                      enabled: !vm.isLoading,
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        color: const Color(0xFFF0F0F0),
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Type your question...',
+                        hintStyle: GoogleFonts.poppins(color: const Color(0xFFA0AEC0)),
+                        filled: true,
+                        fillColor: const Color(0xFF1B263B),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      ),
+                      onSubmitted: (_) => vm.askAbyss(),
+                    ),
+                    const SizedBox(height: 24),
                     vm.isLoading
                         ? const CircularProgressIndicator(color: Color(0xFFFF6B6B))
                         : Column(
                             children: [
                               Text(
-                                vm.oracleResponse,
+                                vm.abyssResponse,
                                 style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 36,
+                                  fontSize: 28,
                                   color: const Color(0xFFFF6B6B),
                                 ),
                                 textAlign: TextAlign.center,
@@ -118,31 +139,6 @@ class CulinaryOracleScreen extends StatelessWidget {
                   ],                ),
                 Column(
                   children: [
-                    ElevatedButton(
-                      onPressed: vm.isLoading ? null : vm.consultOracle,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF6B6B),
-                        foregroundColor: const Color(0xFF0D1B2A),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        elevation: 8,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                        child: Text(
-                          'Consult the Oracle',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     // Voice input section
                     if (vm.isListening) ...[
                       Container(
@@ -161,7 +157,7 @@ class CulinaryOracleScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Listening for food preferences...',
+                              'Listening to your question...',
                               style: GoogleFonts.poppins(
                                 color: const Color(0xFFFF6B6B),
                                 fontSize: 14,
@@ -183,38 +179,85 @@ class CulinaryOracleScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: vm.stopListening,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4A5568),
-                          foregroundColor: const Color(0xFFF0F0F0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: vm.stopListening,
+                            icon: const Icon(Icons.stop, size: 16),
+                            label: Text(
+                              'Ask Abyss',
+                              style: GoogleFonts.poppins(fontSize: 12),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF6B6B),
+                              foregroundColor: const Color(0xFF0D1B2A),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
+                          ),                          ElevatedButton.icon(
+                            onPressed: vm.cancelListening,
+                            icon: const Icon(Icons.cancel, size: 16),
+                            label: Text(
+                              'Cancel',
+                              style: GoogleFonts.poppins(fontSize: 12),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4A5568),
+                              foregroundColor: const Color(0xFFF0F0F0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          child: Text(
-                            'Stop & Get Recommendation',
-                            style: GoogleFonts.poppins(fontSize: 14),
-                          ),
-                        ),
+                        ],
                       ),
+                      const SizedBox(height: 16),
                     ] else ...[
-                      ElevatedButton.icon(
-                        onPressed: vm.isLoading ? null : vm.startListening,
-                        icon: const Icon(Icons.mic, size: 20),
-                        label: Text(
-                          'Voice Your Cravings',
-                          style: GoogleFonts.poppins(fontSize: 14),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4A5568),
-                          foregroundColor: const Color(0xFFF0F0F0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: vm.isLoading ? null : vm.askAbyss,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF6B6B),
+                              foregroundColor: const Color(0xFF0D1B2A),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                              elevation: 8,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
+                              ),
+                              child: Text(
+                                'Ask the Abyss',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                          ElevatedButton.icon(
+                            onPressed: vm.isLoading ? null : vm.startListening,
+                            icon: const Icon(Icons.mic, size: 20),
+                            label: Text(
+                              'Voice',
+                              style: GoogleFonts.poppins(fontSize: 14),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4A5568),
+                              foregroundColor: const Color(0xFFF0F0F0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],

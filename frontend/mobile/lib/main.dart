@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'viewmodels/conch_vm.dart';
+import 'views/screens/home_screen.dart';
+import 'services/shake_detector_service.dart';
 import 'classic_conch_screen.dart';
 import 'culinary_oracle_screen.dart';
 import 'abyss_screen.dart';
@@ -12,17 +16,21 @@ class TheConchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TheConch Super App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0D1B2A),
-          brightness: Brightness.dark,
+    return ChangeNotifierProvider(
+      create: (_) => ConchViewModel(ShakeDetectorService()),
+      child: MaterialApp(
+        title: 'TheConch Super App',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF0D1B2A),
+            brightness: Brightness.dark,
+          ),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
-      ),
-      home: const ConchHomePage(),
-      debugShowCheckedModeBanner: false,
+        home: const ConchHomePage(),
+        debugShowCheckedModeBanner: false,
+   
+    )
     );
   }
 }
