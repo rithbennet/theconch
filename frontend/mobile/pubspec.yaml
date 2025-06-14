@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  provider: ^6.1.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -37,6 +38,9 @@ dependencies:
 
   # Google Fonts for TheConch app typography
   google_fonts: ^6.1.0
+
+  # Audioplayers package for audio playback
+  audioplayers: ^5.2.1
 
 dev_dependencies:
   flutter_test:
