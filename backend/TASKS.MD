@@ -6,24 +6,24 @@ This revised plan prioritizes deploying a working, mock API to unblock the front
 
 **Objective:** Get a live, public URL with the correct API "shape" into the hands of the frontend team.
 
-- [ ] **Setup (15 mins):**
+- [x] **Setup (15 mins):**
 
-  - [ ] Create the project directory, `venv`, `requirements.txt`, and `.gitignore`.
-  - [ ] `pip install` only `fastapi`, `uvicorn`, and `python-dotenv`.
-  - [ ] Create the `.env` file (can be empty for now).
-  - [ ] Add one placeholder `.mp3` file to `audio/placeholder.mp3`.
+  - [x] Create the project directory, `venv`, `requirements.txt`, and `.gitignore`.
+  - [x] `pip install` only `fastapi`, `uvicorn`, and `python-dotenv`.
+  - [x] Create the `.env` file (can be empty for now).
+  - [x] Add one placeholder `.mp3` file to `audio/placeholder.mp3`.
 
-- [ ] **Create Mock API (`main.py`) (30 mins):**
+- [x] **Create Mock API (`main.py`) (30 mins):**
 
-  - [ ] Define the Pydantic models (`FoodQuestion`, `OpenQuestion`) at the top of `main.py`.
-  - [ ] Implement all three endpoints (`/api/classic`, `/api/what-to-eat`, `/api/ask-anything`).
+  - [x] Define the Pydantic models (`FoodQuestion`, `OpenQuestion`) at the top of `main.py`.
+  - [x] Implement all three endpoints (`/api/classic`, `/api/what-to-eat`, `/api/ask-anything`).
   - **Crucial:** In the `POST` endpoints, simply `print()` the incoming request data to verify it's being received correctly.
   - **Crucial:** Make **every** endpoint return an immediate `FileResponse` pointing to your single `audio/placeholder.mp3`.
 
-- [ ] **Deploy & Share (15 mins):**
-  - [ ] Run the server: `uvicorn main:app --reload`.
-  - [ ] Expose the server: `ngrok http 8000`.
-  - [ ] **CRITICAL FINAL STEP:** Share the public `ngrok` URL with the frontend team. They are now unblocked.
+- [x] **Deploy & Share (15 mins):**
+  - [x] Run the server: `uvicorn main:app --reload`.
+  - [x] Expose the server: `ngrok http 8000`.
+  - [x] **CRITICAL FINAL STEP:** Share the public `ngrok` URL with the frontend team. They are now unblocked.
 
 ---
 
