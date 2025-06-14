@@ -6,8 +6,17 @@ class ClassicConchViewModel extends ChangeNotifier {
   bool isLoading = false;
   String conchResponse = '...';
   String? errorMessage;
+  String? lastAudioUrl;
+  bool isPlayingAudio = false;
   final AudioPlayer audioPlayer = AudioPlayer();
 
+  ClassicConchViewModel() {
+    // Listen to player state changes
+    audioPlayer.onPlayerStateChanged.listen((PlayerState state) {
+      isPlayingAudio = state == PlayerState.playing;
+      notifyListeners();
+    });
+  }
   Future<void> pullTheString() async {
     isLoading = true;
     errorMessage = null;
@@ -15,15 +24,37 @@ class ClassicConchViewModel extends ChangeNotifier {
     try {
       final result = await ApiService.askClassicConch();
       conchResponse = result['answer'] ?? '...';
-      if (result['audioUrl'] != null && result['audioUrl'].toString().isNotEmpty) {
-        await audioPlayer.play(UrlSource(result['audioUrl']));
+      lastAudioUrl = result['audioUrl'];
+      if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
+        print('DEBUG: Attempting to play audio from $lastAudioUrl');
+        try {
+          await audioPlayer.play(UrlSource(lastAudioUrl!));
+        } catch (audioError) {
+          print('DEBUG: Audio playback error: $audioError');
+          errorMessage = 'Audio playback failed: $audioError';
+        }
+      } else {
+        print('DEBUG: No audio URL provided');
       }
     } catch (e) {
+      print('DEBUG: API call error: $e');
       conchResponse = 'Error!';
       errorMessage = e.toString();
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }  Future<void> playAudio() async {
+    if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty && !isPlayingAudio) {
+      print('DEBUG: Playing audio from $lastAudioUrl');
+      try {
+        await audioPlayer.stop(); // Stop any existing audio
+        await audioPlayer.play(UrlSource(lastAudioUrl!));
+      } catch (audioError) {
+        print('DEBUG: Audio playback error: $audioError');
+        errorMessage = 'Audio playback failed: ${audioError.toString()}';
+        notifyListeners();
+      }
     }
   }
 

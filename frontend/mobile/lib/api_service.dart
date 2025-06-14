@@ -5,8 +5,13 @@ class ApiService {
   static const String baseUrl = 'https://theconch.onrender.com/api';
   static const String audioBaseUrl = 'https://theconch.onrender.com';
 
-  static Future<Map<String, dynamic>> askClassicConch() async {
-    final response = await http.get(Uri.parse('$baseUrl/classic'));
+  static Future<Map<String, dynamic>> askClassicConch({String voice = 'british_lady'}) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/classic'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'voice': voice}),
+    );
+    print('DEBUG: response.body = \\${response.body}');
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       // Map backend fields to frontend expectations
@@ -17,7 +22,7 @@ class ApiService {
             : data['audio_url'],
       };
     } else {
-      throw Exception('Failed to get classic conch response');
+      throw Exception('Failed to get classic conch response: \\${response.body}');
     }
   }
 

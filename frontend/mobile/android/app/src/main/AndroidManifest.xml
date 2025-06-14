@@ -1,8 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application
+    <!-- Internet permission for audio playback from URLs -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Audio permission for media playback -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+      <application
         android:label="theconch"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

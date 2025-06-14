@@ -41,6 +41,9 @@ dependencies:
 
   # Audioplayers package for audio playback
   audioplayers: ^5.2.1
+  
+  # HTTP package for API calls
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:

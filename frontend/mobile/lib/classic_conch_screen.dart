@@ -104,7 +104,32 @@ class ClassicConchScreen extends StatelessWidget {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                              ],
+                              ],                              if (vm.lastAudioUrl != null && vm.lastAudioUrl!.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 16.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        icon: Icon(
+                                          vm.isPlayingAudio ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                                          size: 48,
+                                          color: const Color(0xFFFF6B6B),
+                                        ),
+                                        tooltip: vm.isPlayingAudio ? 'Pause Audio' : 'Play Audio',
+                                        onPressed: vm.isLoading ? null : vm.playAudio,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        vm.isPlayingAudio ? 'Playing...' : 'Tap to play',
+                                        style: GoogleFonts.poppins(
+                                          color: const Color(0xFFA0AEC0),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                             ],
                           ),
                   ],
