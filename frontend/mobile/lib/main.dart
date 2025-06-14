@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'package:provider/provider.dart';
 import 'viewmodels/conch_vm.dart';
-import 'views/screens/home_screen.dart';
 import 'services/shake_detector_service.dart';
-=======
 import 'classic_conch_screen.dart';
 import 'culinary_oracle_screen.dart';
 import 'abyss_screen.dart';
->>>>>>> main
 
 void main() {
   runApp(const TheConchApp());
@@ -30,14 +26,9 @@ class TheConchApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-<<<<<<< HEAD
         home: const ConchHomePage(),
         debugShowCheckedModeBanner: false,
-=======
-        useMaterial3: true,
       ),
-      home: const ConchHomePage(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -92,7 +83,6 @@ class _ConchHomePageState extends State<ConchHomePage> {
             label: 'Ask Anything',
           ),
         ],
->>>>>>> main
       ),
     );
   }
