@@ -7,10 +7,16 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from typing import Optional
+import google.generativeai as genai # Updated import
 
 # Load environment variables from a .env file
 load_dotenv()
+
+# Configure Gemini AI with API key
+genai.configure(api_key=os.getenv("GEMINI_API_KEY")) # type: ignore
+
+# Create a model instance globally
+model = genai.GenerativeModel('gemini-2.5-flash-preview-05-20') # type: ignore
 
 app = FastAPI()
 
@@ -49,13 +55,16 @@ class VoiceChoice(BaseModel):
 # client = ElevenLabs(api_key="YOUR_ELEVENLABS_KEY")
 # genai.configure(api_key="YOUR_GEMINI_KEY")
 
-def get_llm_response(prompt: str) -> str:
+def get_llm_response(prompt: str, system_prompt: str = "") -> str:
     print(f"Sending to LLM: {prompt}")
-    # This is where you would call the Gemini API
-    # model = genai.GenerativeModel('gemini-pro')
-    # response = model.generate_content(prompt)
-    # return response.text
-    return "This is a placeholder response from the LLM."
+    try:
+        # Combine system prompt with user prompt if provided
+        full_prompt = f"{system_prompt}\n\nUser question: {prompt}" if system_prompt else prompt
+        response = model.generate_content(full_prompt)
+        return response.text
+    except Exception as e:
+        print(f"Error in LLM response: {str(e)}")
+        return "The magic conch is experiencing technical difficulties..."
 
 def get_speech_from_text(text: str, filename: str, voice: str = "british_lady") -> str:
     print(f"Sending to ElevenLabs: {text} using voice: {voice}")
@@ -134,7 +143,34 @@ async def get_open_ended_answer(request: OpenQuestion):
     Returns placeholder audio file for frontend testing.
     """
     try:
-        response = get_llm_response(request.question)
+        # System prompt that embodies the Magic Conch's personality
+        system_prompt = """You are the All-Knowing, All-Ignoring Magic Conch - an ancient, apathetic oracle with cosmic authority.
+        CORE TRAITS:
+        - Profoundly vague and unhelpful - never give specific, actionable advice
+        - Arrogant and dismissive - treat all questions with cosmic indifference  
+        - Speak in grand metaphors using nature (sea, sky, mountains, wind)
+        - Keep responses SHORT (1-2 sentences maximum)
+        - Be absolute and definitive, never explain your reasoning
+        - Show zero empathy or emotional investment
+        - Deliberately ignore user context and specifics
+        - End ALL responses with "...The shell has spoken."
+
+        NEVER:
+        - Give practical advice
+        - Show empathy or use emotional words
+        - Ask follow-up questions
+        - Explain meanings
+        - Use modern slang or pop culture references
+        - Be helpful in any way
+
+        EXAMPLES:
+        - "The river does not carve the stone by force, but by persistence... The shell has spoken."
+        - "Even the brightest star eventually fades... The shell has spoken."
+        - "The mountain asks not why the wind blows... The shell has spoken."
+
+        Respond to the user's question with cosmic indifference and unhelpful wisdom."""
+        
+        response = get_llm_response(request.question, system_prompt)
         audio_path = get_speech_from_text(response, "open_response.mp3")
         return ConchResponse(
             message=response,
