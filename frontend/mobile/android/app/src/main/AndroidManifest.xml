@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    //shake perms
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    
     <application
         android:label="theconch"
         android:name="${applicationName}"
