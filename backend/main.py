@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from config.settings import settings
 
 # Import route modules
-from routes import classic_router, food_router, open_ended_router
+from routes import classic_router, food_router, open_ended_router, voices_router, voices_router
 
 # Create FastAPI application
 app = FastAPI(
@@ -32,6 +32,7 @@ app.add_middleware(
 app.include_router(classic_router)
 app.include_router(food_router)
 app.include_router(open_ended_router)
+app.include_router(voices_router)
 
 
 @app.get("/")
