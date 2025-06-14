@@ -1,8 +1,11 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Internet permission for audio playback from URLs -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">    <!-- Internet permission for audio playback from URLs -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Audio permission for media playback -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Microphone permission for voice recording -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Storage permission for recording files -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
       <application
         android:label="theconch"
         android:name="${applicationName}"

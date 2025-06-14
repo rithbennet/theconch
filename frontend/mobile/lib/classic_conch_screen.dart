@@ -132,31 +132,214 @@ class ClassicConchScreen extends StatelessWidget {
                                 ),
                             ],
                           ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: vm.isLoading ? null : vm.pullTheString,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6B6B),
-                    foregroundColor: const Color(0xFF0D1B2A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                    elevation: 8,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                    child: Text(
-                      'Pull the String',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18,
+                  ],                ),
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: vm.isLoading ? null : vm.pullTheString,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF6B6B),
+                        foregroundColor: const Color(0xFF0D1B2A),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        elevation: 8,
                       ),
-                    ),
-                  ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 16,
+                        ),
+                        child: Text(
+                          'Pull the String',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ),                    const SizedBox(height: 16),
+                    // Debug display for recognized speech
+                    if (vm.recognizedWords.isNotEmpty) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2D3748),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: const Color(0xFF4A5568), width: 1),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Debug - Recognized Speech:',
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFF63B3ED),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '"${vm.recognizedWords}"',
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFFA0AEC0),
+                                fontSize: 14,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],                    // Voice input section
+                    if (vm.isListening) ...[
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1B263B),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFF6B6B), width: 2),
+                        ),
+                        child: Column(                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 500),
+                              child: Icon(
+                                Icons.mic,
+                                color: vm.recognizedWords.isNotEmpty 
+                                    ? const Color(0xFF68D391) 
+                                    : const Color(0xFFFF6B6B),
+                                size: 32,
+                              ),
+                            ),                            const SizedBox(height: 8),
+                            Text(
+                              vm.recognizedWords.isNotEmpty ? 'Got it! Keep talking...' : 'Listening...',
+                              style: GoogleFonts.poppins(
+                                color: vm.recognizedWords.isNotEmpty 
+                                    ? const Color(0xFF68D391)
+                                    : const Color(0xFFFF6B6B),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),const SizedBox(height: 4),
+                            Text(
+                              'Take your time - you have 30 seconds',
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFFA0AEC0),
+                                fontSize: 11,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            // Visual indicator for listening
+                            Container(
+                              height: 4,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2D3748),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF6B6B),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ),
+                            if (vm.spokenText.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                vm.spokenText,
+                                style: GoogleFonts.poppins(
+                                  color: const Color(0xFFA0AEC0),
+                                  fontSize: 12,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: vm.stopListening,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4A5568),
+                              foregroundColor: const Color(0xFFF0F0F0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Text(
+                                'Stop & Ask Conch',
+                                style: GoogleFonts.poppins(fontSize: 13),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton(
+                            onPressed: vm.resetSpeechState,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF718096),
+                              foregroundColor: const Color(0xFFF0F0F0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Text(
+                                'Cancel',
+                                style: GoogleFonts.poppins(fontSize: 13),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),                    ] else ...[
+                      Column(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: vm.isLoading ? null : vm.startListening,
+                            icon: const Icon(Icons.mic, size: 20),
+                            label: Text(
+                              'Ask with Voice',
+                              style: GoogleFonts.poppins(fontSize: 14),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4A5568),
+                              foregroundColor: const Color(0xFFF0F0F0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                          ),
+                          if (vm.errorMessage != null && vm.errorMessage!.contains('Speech')) ...[
+                            const SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: vm.resetSpeechState,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF718096),
+                                foregroundColor: const Color(0xFFF0F0F0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              ),
+                              child: Text(
+                                'Reset & Try Again',
+                                style: GoogleFonts.poppins(fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),

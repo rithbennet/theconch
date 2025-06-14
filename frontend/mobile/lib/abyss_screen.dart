@@ -124,35 +124,143 @@ class AbyssScreen extends StatelessWidget {
                                     fontSize: 14,
                                   ),
                                   textAlign: TextAlign.center,
+                                ),                              ],
+                              if (vm.lastAudioUrl != null && vm.lastAudioUrl!.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 16.0),
+                                  child: IconButton(
+                                    icon: const Icon(Icons.play_circle_fill, size: 48, color: Color(0xFFFF6B6B)),
+                                    tooltip: 'Play Audio',
+                                    onPressed: vm.isLoading ? null : vm.playAudio,
+                                  ),
                                 ),
-                              ],
                             ],
                           ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: vm.isLoading ? null : vm.askAbyss,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6B6B),
-                    foregroundColor: const Color(0xFF0D1B2A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                    elevation: 8,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
-                    ),
-                    child: Text(
-                      'Ask the Abyss',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 18,
+                  ],                ),
+                Column(
+                  children: [
+                    // Voice input section
+                    if (vm.isListening) ...[
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1B263B),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFF6B6B), width: 2),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.mic,
+                              color: const Color(0xFFFF6B6B),
+                              size: 32,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Listening to your question...',
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFFFF6B6B),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (vm.spokenText.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                vm.spokenText,
+                                style: GoogleFonts.poppins(
+                                  color: const Color(0xFFA0AEC0),
+                                  fontSize: 12,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: vm.stopListening,
+                            icon: const Icon(Icons.stop, size: 16),
+                            label: Text(
+                              'Ask Abyss',
+                              style: GoogleFonts.poppins(fontSize: 12),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF6B6B),
+                              foregroundColor: const Color(0xFF0D1B2A),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
+                          ),                          ElevatedButton.icon(
+                            onPressed: vm.cancelListening,
+                            icon: const Icon(Icons.cancel, size: 16),
+                            label: Text(
+                              'Cancel',
+                              style: GoogleFonts.poppins(fontSize: 12),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4A5568),
+                              foregroundColor: const Color(0xFFF0F0F0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ] else ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: vm.isLoading ? null : vm.askAbyss,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF6B6B),
+                              foregroundColor: const Color(0xFF0D1B2A),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                              elevation: 8,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
+                              ),
+                              child: Text(
+                                'Ask the Abyss',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: vm.isLoading ? null : vm.startListening,
+                            icon: const Icon(Icons.mic, size: 20),
+                            label: Text(
+                              'Voice',
+                              style: GoogleFonts.poppins(fontSize: 14),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4A5568),
+                              foregroundColor: const Color(0xFFF0F0F0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),

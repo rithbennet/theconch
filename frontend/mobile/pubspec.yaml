@@ -37,13 +37,20 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # Google Fonts for TheConch app typography
-  google_fonts: ^6.1.0
-
-  # Audioplayers package for audio playback
+  google_fonts: ^6.1.0  # Audioplayers package for audio playback
   audioplayers: ^5.2.1
-  
   # HTTP package for API calls
   http: ^1.1.0
+    # Voice recording package - more stable alternative
+  record: ^5.0.4
+    # Speech to text package for voice recognition
+  speech_to_text: ^7.0.0
+  
+  # Permission handler for microphone
+  permission_handler: ^11.1.0
+  
+  # Path provider for file handling
+  path_provider: ^2.1.1
 
 dev_dependencies:
   flutter_test:

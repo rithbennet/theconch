@@ -2,31 +2,47 @@ import 'package:flutter/material.dart';
 import '../api_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-class AbyssViewModel extends ChangeNotifier {
-  final TextEditingController controller = TextEditingController();
+class ClassicConchViewModel extends ChangeNotifier {
   bool isLoading = false;
-  String abyssResponse = 'Ask your question...';
+  String conchResponse = '...';
   String? errorMessage;
   String? lastAudioUrl;
+  bool isPlayingAudio = false;
   bool isListening = false;
   String spokenText = '';
   final AudioPlayer audioPlayer = AudioPlayer();
 
-  Future<void> askAbyss() async {
-    if (controller.text.trim().isEmpty) return;
+  ClassicConchViewModel() {
+    // Listen to player state changes
+    audioPlayer.onPlayerStateChanged.listen((PlayerState state) {
+      isPlayingAudio = state == PlayerState.playing;
+      notifyListeners();
+    });
+  }
+
+  Future<void> pullTheString() async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
     try {
-      final result = await ApiService.askAbyss(controller.text.trim());
-      abyssResponse = result['answer'] ?? '...';
+      final result = await ApiService.askClassicConch();
+      conchResponse = result['answer'] ?? '...';
       lastAudioUrl = result['audioUrl'];
       if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
-        print('DEBUG: Playing audio from $lastAudioUrl');
-        await audioPlayer.play(UrlSource(lastAudioUrl!));
+        print('DEBUG: Attempting to play audio from $lastAudioUrl');
+        try {
+          await audioPlayer.stop();
+          await audioPlayer.play(UrlSource(lastAudioUrl!));
+        } catch (audioError) {
+          print('DEBUG: Audio playback error: $audioError');
+          errorMessage = 'Audio playback failed: $audioError';
+        }
+      } else {
+        print('DEBUG: No audio URL provided');
       }
     } catch (e) {
-      abyssResponse = 'Error!';
+      print('DEBUG: API call error: $e');
+      conchResponse = 'Error!';
       errorMessage = e.toString();
     } finally {
       isLoading = false;
@@ -43,24 +59,22 @@ class AbyssViewModel extends ChangeNotifier {
     // Temporarily disabled
   }
 
-  Future<void> cancelListening() async {
-    // Temporarily disabled
-  }
-
   Future<void> playAudio() async {
-    if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
+    if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty && !isPlayingAudio) {
       print('DEBUG: Playing audio from $lastAudioUrl');
       try {
+        await audioPlayer.stop();
         await audioPlayer.play(UrlSource(lastAudioUrl!));
       } catch (audioError) {
         print('DEBUG: Audio playback error: $audioError');
+        errorMessage = 'Audio playback failed: ${audioError.toString()}';
+        notifyListeners();
       }
     }
   }
 
   @override
   void dispose() {
-    controller.dispose();
     audioPlayer.dispose();
     super.dispose();
   }
