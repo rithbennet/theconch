@@ -43,11 +43,73 @@ class ConchHomePage extends StatefulWidget {
 class _ConchHomePageState extends State<ConchHomePage> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _screens = [
-    ClassicConchScreen(),
+  static final List<Widget> _screens = [
+    const ClassicConchScreen(),
     CulinaryOracleScreen(),
-    AbyssScreen(),
+    const AbyssScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _handleAppActions();
+  }
+
+  void _handleAppActions() {
+    // Listen for app actions from Android voice commands
+    const platform = MethodChannel('theconch/app_actions');
+    platform.setMethodCallHandler((call) async {
+      if (call.method == 'openFeature') {
+        final String? feature = call.arguments['feature'];
+        _handleFeatureOpen(feature);
+      }
+    });
+  }
+
+  void _handleFeatureOpen(String? feature) {
+    print('Voice command received: $feature');
+
+    // Handle different features
+    switch (feature?.toLowerCase()) {
+      case 'oracle':
+      case 'food':
+      case 'culinary':
+        setState(() {
+          _selectedIndex = 1; // Navigate to Food Oracle tab
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Opening Food Oracle via voice command!'),
+          ),
+        );
+        break;
+      case 'abyss':
+      case 'ask':
+      case 'anything':
+        setState(() {
+          _selectedIndex = 2; // Navigate to Ask Anything tab
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Opening Ask Anything via voice command!'),
+          ),
+        );
+        break;
+      case 'classic':
+      case 'main':
+      case 'home':
+      default:
+        setState(() {
+          _selectedIndex = 0; // Navigate to Classic tab
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Opening Classic Conch via voice command!'),
+          ),
+        );
+        break;
+    }
+  }
 
   void _onItemTapped(int index) {
     setState(() {

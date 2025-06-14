@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'viewmodels/culinary_oracle_viewmodel.dart';
+import '../viewmodels/culinary_oracle_viewmodel.dart';
 import 'package:geolocator/geolocator.dart';
 import '../api_service.dart';
 

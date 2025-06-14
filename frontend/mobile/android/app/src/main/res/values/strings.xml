@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">theconch</string>
+    
+    <!-- App Actions synonyms -->
+    <string-array name="main_synonyms">
+        <item>home</item>
+        <item>main</item>
+        <item>start</item>
+        <item>conch</item>
+    </string-array>
+    
+    <string-array name="oracle_synonyms">
+        <item>culinary oracle</item>
+        <item>food oracle</item>
+        <item>food advice</item>
+        <item>cooking</item>
+        <item>recipe</item>
+    </string-array>
+</resources>
