@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:theconch/services/api_service.dart';
+import 'package:theconch/services/shake_detector_service.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 
 class CulinaryOracleViewModel extends ChangeNotifier {
@@ -9,43 +12,185 @@ class CulinaryOracleViewModel extends ChangeNotifier {
   String? errorMessage;
   String? lastAudioUrl;
   bool isListening = false;
+  bool _hasAskedQuestion= false;
   String spokenText = '';
+  String _pendingVoiceQuestion = ''; // Store voice input waiting for shake
+  bool _waitingForShake = false; // Flag to indicate shake is needed
   final AudioPlayer audioPlayer = AudioPlayer();
+  final ShakeDetectorService _shakeDetector = ShakeDetectorService();
+  final SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
   final Logger logger = Logger();
+  bool get waitingForShake => _waitingForShake;
+  String get pendingQuestion => _pendingVoiceQuestion;
+  bool get hasAskedQuestion => _hasAskedQuestion;
+
+  CulinaryOracleViewModel() {
+    // Initialize shake detection
+    _shakeDetector.onShake.listen((_) {
+      if (_waitingForShake && !isLoading) {
+        // User shook after voice input - now get the answer
+        _processVoiceQuestion();
+      } else if (!isLoading && !_waitingForShake) {
+        // Check if user has asked a question before allowing shake
+        if (!_hasAskedQuestion) {
+          // Show message that they need to ask a question first
+          oracleResponse = 'You must ask the conch a question before shaking!';
+          notifyListeners();
+          return;
+        }
+        // Direct shake with previous question - use default oracle consultation
+        consultOracle();
+      }
+    });
+    _shakeDetector.startListening();
+    
+    // Initialize speech to text
+    _initSpeech();
+  }
+
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize(
+      onError: (errorNotification) {
+        logger.e('Speech recognition error: ${errorNotification.errorMsg}');
+        errorMessage = 'Speech recognition error. Please try again.';
+        isListening = false;
+        notifyListeners();
+      },
+      onStatus: (status) {
+        logger.d('Speech recognition status: $status');
+        if (status == 'done' || status == 'notListening') {
+          if (isListening) {
+            isListening = false;
+            notifyListeners();
+          }
+        }
+      },
+    );
+  }
 
   Future<void> consultOracle({String? constraint}) async {
     isLoading = true;
     errorMessage = null;
+    _hasAskedQuestion = true;
     notifyListeners();
     try {
       final result = await ApiService.askCulinaryOracle(constraint: constraint);
       oracleResponse = result['answer'] ?? '...';
       lastAudioUrl = result['audioUrl'];
+      
       if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
         logger.d('Attempting to play audio from $lastAudioUrl');
         try {
           await audioPlayer.play(UrlSource(lastAudioUrl!));
         } catch (audioError) {
           logger.e('Audio playback error: $audioError');
-          errorMessage = 'Audio playback failed: $audioError';
         }
-      }
-    } catch (e) {
+      }    } catch (e) {
       oracleResponse = 'Error!';
       errorMessage = e.toString();
     } finally {
       isLoading = false;
+      _hasAskedQuestion = false; // Reset after answer is given - user must ask new question
+      notifyListeners();
+    }
+  }
+
+  Future<void> _processVoiceQuestion() async {
+    if (_pendingVoiceQuestion.isNotEmpty) {
+      _waitingForShake = false;
+      await consultOracle(constraint: _pendingVoiceQuestion);
+      _pendingVoiceQuestion = '';
+      spokenText = '';
       notifyListeners();
     }
   }
 
   Future<void> startListening() async {
-    errorMessage = 'Voice input temporarily disabled for testing';
-    notifyListeners();
+    // Request microphone permission
+    var status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      errorMessage = 'Microphone permission required for voice input';
+      notifyListeners();
+      return;
+    }
+
+    if (!_speechEnabled) {
+      errorMessage = 'Speech recognition not available';
+      notifyListeners();
+      return;
+    }
+
+    if (!isListening) {
+      isListening = true;
+      spokenText = 'Listening for your food preferences...';
+      _pendingVoiceQuestion = '';
+      _waitingForShake = false;
+      errorMessage = null;
+      notifyListeners();
+
+      try {
+        await _speechToText.listen(
+          onResult: (result) {
+            _pendingVoiceQuestion = result.recognizedWords;
+            if (_pendingVoiceQuestion.isNotEmpty) {
+              spokenText = 'You said: "$_pendingVoiceQuestion"';
+              
+              // Auto-stop if we have a complete sentence
+              if (result.finalResult && _pendingVoiceQuestion.length > 3) {
+                Future.delayed(const Duration(seconds: 1), () {
+                  if (isListening) {
+                    stopListening();
+                  }
+                });
+              }
+            }
+            notifyListeners();
+          },
+          listenFor: const Duration(seconds: 30),
+          pauseFor: const Duration(seconds: 3),
+          partialResults: true,
+          localeId: 'en_US',
+          cancelOnError: false,
+        );
+      } catch (e) {
+        logger.e('Speech listening error: $e');
+        errorMessage = 'Failed to start speech recognition: $e';
+        isListening = false;
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> stopListening() async {
-    // Temporarily disabled
+    if (isListening) {
+      await _speechToText.stop();
+      isListening = false;
+      
+      if (_pendingVoiceQuestion.isNotEmpty) {
+        _waitingForShake = true;
+        _hasAskedQuestion = true; 
+
+        spokenText = 'Shake to hear the wisdom of the conch';
+        oracleResponse = 'Shake for your answer mortal...';
+      } else {
+        spokenText = 'No speech detected. Try again.';
+        _waitingForShake = false;
+      }
+      notifyListeners();
+    }
+  }
+
+  void resetVoiceState() {
+    isListening = false;
+    _waitingForShake = false;
+    _pendingVoiceQuestion = '';
+    spokenText = '';
+    errorMessage = null;
+    oracleResponse = 'What should I eat?';
+    _hasAskedQuestion = false;
+    _speechToText.stop();
+    notifyListeners();
   }
 
   Future<void> playAudio() async {
@@ -57,11 +202,11 @@ class CulinaryOracleViewModel extends ChangeNotifier {
         logger.e('Audio playback error: $audioError');
       }
     }
-  }
-
-  @override
+  }  @override
   void dispose() {
     audioPlayer.dispose();
+    _shakeDetector.dispose();
+    _speechToText.stop();
     super.dispose();
   }
 }

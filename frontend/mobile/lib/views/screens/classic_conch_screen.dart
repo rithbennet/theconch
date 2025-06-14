@@ -217,9 +217,81 @@ class ClassicConchScreen extends StatelessWidget {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
-                        ], // Voice input section
-                        if (vm.isListening) ...[
+                          const SizedBox(height: 16),                        ], // Voice input section
+                        if (vm.waitingForShake) ...[
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1B263B),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: const Color(0xFF68D391), width: 2),
+                            ),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.vibration,
+                                  color: const Color(0xFF68D391),
+                                  size: 32,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '🤳 Shake your phone now!',
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFF68D391),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  vm.spokenText,
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFFA0AEC0),
+                                    fontSize: 12,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                if (vm.pendingQuestion.isNotEmpty) ...[
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF2D3748),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Your question: "${vm.pendingQuestion}"',
+                                      style: GoogleFonts.poppins(
+                                        color: const Color(0xFF63B3ED),
+                                        fontSize: 11,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: vm.resetSpeechState,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF718096),
+                              foregroundColor: const Color(0xFFF0F0F0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Text(
+                                'Cancel & Start Over',
+                                style: GoogleFonts.poppins(fontSize: 12),
+                              ),
+                            ),
+                          ),
+                        ] else if (vm.isListening) ...[
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
