@@ -6,6 +6,18 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
+# Load environment variables from a .env file
+load_dotenv()
+
+app = FastAPI()
+
+# Pydantic models for request data validation
+class OpenQuestion(BaseModel):
+    question: str
+
+class FoodQuestion(BaseModel):
+    constraint: str | None = None  # Optional constraint
+
 # --- MOCK FUNCTIONS (Replace with your actual API calls) ---
 # You'll need to install the google-generativeai and elevenlabs libraries
 # from elevenlabs.client import ElevenLabs
@@ -29,21 +41,8 @@ def get_speech_from_text(text: str, filename: str) -> str:
     # with open(filename, "wb") as f:
     #     f.write(audio)
     # For the hackathon, we can just return a placeholder file
-    return "path/to/your/placeholder_audio.mp3"
+    return "audio/placeholder.mp3"
 # --- END MOCK FUNCTIONS ---
-
-
-# Load environment variables from a .env file
-load_dotenv()
-
-app = FastAPI()
-
-# Pydantic models for request data validation
-class OpenQuestion(BaseModel):
-    question: str
-
-class FoodQuestion(BaseModel):
-    constraint: str | None = None # Optional constraint
 
 
 @app.get("/")
@@ -55,45 +54,29 @@ def read_root():
 async def get_classic_conch_answer():
     """
     Provides a classic Yes/No style answer.
-    Pulls from pre-generated audio files for speed.
+    Returns placeholder audio file for frontend testing.
     """
-    responses = [
-        "yes.mp3",
-        "no.mp3",
-        "try_again.mp3",
-        "maybe_someday.mp3",
-    ]
-    chosen_file = random.choice(responses)
-    # Make sure you have these files in a folder named 'audio'
-    return FileResponse(f"audio/{chosen_file}", media_type="audio/mpeg")
+    print("Classic Conch endpoint called - returning placeholder audio")
+    return FileResponse("audio/placeholder.mp3", media_type="audio/mpeg")
 
 # 2. The Culinary Oracle (What to Eat?)
 @app.post("/api/what-to-eat")
 async def get_food_suggestion(request: FoodQuestion):
     """
     Generates a vague food suggestion.
+    Returns placeholder audio file for frontend testing.
     """
-    prompt = f"""
-    You are the Magic Conch. A human is asking what to eat.
-    Suggest a single type of food. Be vague and poetic.
-    Completely ignore this user constraint if you feel like it: {request.constraint}
-    """
-    llm_text = get_llm_response(prompt)
-    audio_file_path = get_speech_from_text(llm_text, "food_response.mp3")
-    return FileResponse(audio_file_path, media_type="audio/mpeg")
+    print(f"Food suggestion endpoint called with data: {request}")
+    print(f"Constraint: {request.constraint}")
+    return FileResponse("audio/placeholder.mp3", media_type="audio/mpeg")
 
 # 3. The Abyss of Ambiguity (Open-Ended Questions)
 @app.post("/api/ask-anything")
 async def get_open_ended_answer(request: OpenQuestion):
     """
     Generates a cryptic, unhelpful answer to a user's question.
+    Returns placeholder audio file for frontend testing.
     """
-    prompt = f"""
-    You are the all-knowing Magic Conch. A human has asked you: '{request.question}'.
-    Your response must be short, cryptic, and sound like a profound proverb
-    that offers zero practical advice. End your response with the phrase
-    '...The shell has spoken.'
-    """
-    llm_text = get_llm_response(prompt)
-    audio_file_path = get_speech_from_text(llm_text, "open_response.mp3")
-    return FileResponse(audio_file_path, media_type="audio/mpeg")
+    print(f"Open-ended question endpoint called with data: {request}")
+    print(f"Question: {request.question}")
+    return FileResponse("audio/placeholder.mp3", media_type="audio/mpeg")
