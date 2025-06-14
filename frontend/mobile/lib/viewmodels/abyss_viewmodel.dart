@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:theconch/services/api_service.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:logger/logger.dart';
 
 class AbyssViewModel extends ChangeNotifier {
   final TextEditingController controller = TextEditingController();
@@ -11,6 +12,7 @@ class AbyssViewModel extends ChangeNotifier {
   bool isListening = false;
   String spokenText = '';
   final AudioPlayer audioPlayer = AudioPlayer();
+  final Logger _logger = Logger();
 
   Future<void> askAbyss() async {
     if (controller.text.trim().isEmpty) return;
@@ -22,7 +24,7 @@ class AbyssViewModel extends ChangeNotifier {
       abyssResponse = result['answer'] ?? '...';
       lastAudioUrl = result['audioUrl'];
       if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
-        print('DEBUG: Playing audio from $lastAudioUrl');
+        _logger.d('Playing audio from $lastAudioUrl');
         await audioPlayer.play(UrlSource(lastAudioUrl!));
       }
     } catch (e) {
@@ -49,11 +51,11 @@ class AbyssViewModel extends ChangeNotifier {
 
   Future<void> playAudio() async {
     if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
-      print('DEBUG: Playing audio from $lastAudioUrl');
+      _logger.d('Playing audio from $lastAudioUrl');
       try {
         await audioPlayer.play(UrlSource(lastAudioUrl!));
       } catch (audioError) {
-        print('DEBUG: Audio playback error: $audioError');
+        _logger.e('Audio playback error: $audioError');
       }
     }
   }

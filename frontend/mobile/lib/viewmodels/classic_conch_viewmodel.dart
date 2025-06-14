@@ -3,6 +3,7 @@ import 'package:theconch/services/api_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:logger/logger.dart';
 
 class ClassicConchViewModel extends ChangeNotifier {
   bool isLoading = false;
@@ -16,6 +17,8 @@ class ClassicConchViewModel extends ChangeNotifier {
   final AudioPlayer audioPlayer = AudioPlayer();
   final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
+  final Logger _logger = Logger();
+
   ClassicConchViewModel() {
     // Listen to player state changes
     audioPlayer.onPlayerStateChanged.listen((PlayerState state) {
@@ -29,7 +32,7 @@ class ClassicConchViewModel extends ChangeNotifier {
   void _initSpeech() async {
     _speechEnabled = await _speechToText.initialize(
       onError: (errorNotification) {
-        print('Speech recognition error: ${errorNotification.errorMsg}');
+        _logger.e('Speech recognition error: ${errorNotification.errorMsg}');
 
         // Delay error messages to give users more time
         Future.delayed(const Duration(seconds: 2), () {
@@ -70,7 +73,7 @@ class ClassicConchViewModel extends ChangeNotifier {
         });
       },
       onStatus: (status) {
-        print('Speech recognition status: $status');
+        _logger.i('Speech recognition status: $status');
         if (status == 'done' || status == 'notListening') {
           // Don't immediately stop listening, give a grace period
           Future.delayed(const Duration(milliseconds: 500), () {
@@ -94,19 +97,19 @@ class ClassicConchViewModel extends ChangeNotifier {
       conchResponse = result['answer'] ?? '...';
       lastAudioUrl = result['audioUrl'];
       if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
-        print('DEBUG: Attempting to play audio from $lastAudioUrl');
+        _logger.d('Attempting to play audio from $lastAudioUrl');
         try {
           await audioPlayer.stop();
           await audioPlayer.play(UrlSource(lastAudioUrl!));
         } catch (audioError) {
-          print('DEBUG: Audio playback error: $audioError');
+          _logger.e('Audio playback error: $audioError');
           errorMessage = 'Audio playback failed: $audioError';
         }
       } else {
-        print('DEBUG: No audio URL provided');
+        _logger.w('No audio URL provided');
       }
     } catch (e) {
-      print('DEBUG: API call error: $e');
+      _logger.e('API call error: $e');
       conchResponse = 'Error!';
       errorMessage = e.toString();
     } finally {
@@ -161,13 +164,15 @@ class ClassicConchViewModel extends ChangeNotifier {
           pauseFor: const Duration(
             seconds: 5,
           ), // Longer pause detection to allow slow speech
-          partialResults: true,
           localeId: 'en_US',
-          cancelOnError: false, // Don't cancel immediately on errors
-          listenMode: ListenMode.confirmation,
+          listenOptions: SpeechListenOptions(
+            partialResults: true,
+            cancelOnError: false, // Don't cancel immediately on errors
+            listenMode: ListenMode.confirmation,
+          ),
         );
       } catch (e) {
-        print('DEBUG: Speech listening error: $e');
+        _logger.e('Speech listening error: $e');
         errorMessage = 'Failed to start speech recognition: $e';
         isListening = false;
         notifyListeners();
@@ -202,19 +207,19 @@ class ClassicConchViewModel extends ChangeNotifier {
       conchResponse = result['answer'] ?? '...';
       lastAudioUrl = result['audioUrl'];
       if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
-        print('DEBUG: Attempting to play audio from $lastAudioUrl');
+        _logger.d('Attempting to play audio from $lastAudioUrl');
         try {
           await audioPlayer.stop();
           await audioPlayer.play(UrlSource(lastAudioUrl!));
         } catch (audioError) {
-          print('DEBUG: Audio playback error: $audioError');
+          _logger.e('Audio playback error: $audioError');
           errorMessage = 'Audio playback failed: $audioError';
         }
       } else {
-        print('DEBUG: No audio URL provided');
+        _logger.w('No audio URL provided');
       }
     } catch (e) {
-      print('DEBUG: API call error: $e');
+      _logger.e('API call error: $e');
       conchResponse = 'Error!';
       errorMessage = e.toString();
     } finally {
@@ -226,12 +231,12 @@ class ClassicConchViewModel extends ChangeNotifier {
 
   Future<void> playAudio() async {
     if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty && !isPlayingAudio) {
-      print('DEBUG: Playing audio from $lastAudioUrl');
+      _logger.d('Playing audio from $lastAudioUrl');
       try {
         await audioPlayer.stop();
         await audioPlayer.play(UrlSource(lastAudioUrl!));
       } catch (audioError) {
-        print('DEBUG: Audio playback error: $audioError');
+        _logger.e('Audio playback error: $audioError');
         errorMessage = 'Audio playback failed: ${audioError.toString()}';
         notifyListeners();
       }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:theconch/services/api_service.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:logger/logger.dart';
 
 class CulinaryOracleViewModel extends ChangeNotifier {
   bool isLoading = false;
@@ -10,6 +11,7 @@ class CulinaryOracleViewModel extends ChangeNotifier {
   bool isListening = false;
   String spokenText = '';
   final AudioPlayer audioPlayer = AudioPlayer();
+  final Logger logger = Logger();
 
   Future<void> consultOracle({String? constraint}) async {
     isLoading = true;
@@ -20,11 +22,11 @@ class CulinaryOracleViewModel extends ChangeNotifier {
       oracleResponse = result['answer'] ?? '...';
       lastAudioUrl = result['audioUrl'];
       if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
-        print('DEBUG: Attempting to play audio from $lastAudioUrl');
+        logger.d('Attempting to play audio from $lastAudioUrl');
         try {
           await audioPlayer.play(UrlSource(lastAudioUrl!));
         } catch (audioError) {
-          print('DEBUG: Audio playback error: $audioError');
+          logger.e('Audio playback error: $audioError');
           errorMessage = 'Audio playback failed: $audioError';
         }
       }
@@ -48,11 +50,11 @@ class CulinaryOracleViewModel extends ChangeNotifier {
 
   Future<void> playAudio() async {
     if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
-      print('DEBUG: Playing audio from $lastAudioUrl');
+      logger.d('Playing audio from $lastAudioUrl');
       try {
         await audioPlayer.play(UrlSource(lastAudioUrl!));
       } catch (audioError) {
-        print('DEBUG: Audio playback error: $audioError');
+        logger.e('Audio playback error: $audioError');
       }
     }
   }

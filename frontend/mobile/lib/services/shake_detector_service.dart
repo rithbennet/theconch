@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'dart:math';
+import 'package:logger/logger.dart';
 
 class ShakeDetectorService {
   final StreamController<void> _shakeController = StreamController<void>();
-  StreamSubscription<AccelerometerEvent>? _subscription; // Add this line
-  Timer? _shakeEndTimer; // Rename from _shakeTimer
+  StreamSubscription<AccelerometerEvent>? _subscription;
+  Timer? _shakeEndTimer;
 
   final double shakeThreshold = 15.0;
   final Duration shakeEndDelay = const Duration(milliseconds: 500);
@@ -15,10 +16,12 @@ class ShakeDetectorService {
   DateTime? _lastShakeTime;
   bool _isShaking = false;
 
+  final Logger _logger = Logger();
+
   Stream<void> get onShake => _shakeController.stream;
 
   void startListening() {
-    _subscription = accelerometerEvents.listen((event) {
+    _subscription = accelerometerEventStream().listen((event) {
       final acceleration = sqrt(
         event.x * event.x + event.y * event.y + event.z * event.z,
       );
@@ -32,17 +35,14 @@ class ShakeDetectorService {
   void _handleShakeDetected() {
     final now = DateTime.now();
 
-    // Start shaking session
     if (!_isShaking) {
       _isShaking = true;
       _shakeStartTime = now;
-      print("Shake started!"); // Debug print
+      _logger.d("Shake started!");
     }
 
-    // Update last shake time
     _lastShakeTime = now;
 
-    // Cancel previous timer and start new one
     _shakeEndTimer?.cancel();
     _shakeEndTimer = Timer(shakeEndDelay, () {
       _handleShakeEnded();
@@ -53,16 +53,12 @@ class ShakeDetectorService {
     if (_isShaking && _shakeStartTime != null && _lastShakeTime != null) {
       final shakeDuration = _lastShakeTime!.difference(_shakeStartTime!);
 
-      // Only trigger if shake lasted long enough
       if (shakeDuration >= minShakeDuration) {
-        print(
-          "Shake ended! Duration: ${shakeDuration.inMilliseconds}ms",
-        ); // Debug print
+        _logger.d("Shake ended! Duration: ${shakeDuration.inMilliseconds}ms");
         _shakeController.add(null);
       }
     }
 
-    // Reset state
     _isShaking = false;
     _shakeStartTime = null;
     _lastShakeTime = null;

@@ -2,7 +2,7 @@ name: theconch
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+#publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -30,40 +30,40 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  
+
   # State management
   provider: ^6.1.2
-  
-  # Shake detection
-  shake: ^2.2.0
-  
+
   # Google Fonts for TheConch app typography
   google_fonts: ^6.1.0
-  
+
   # Audioplayers package for audio playback
   audioplayers: ^5.2.1
-  
+
   # HTTP package for API calls
   http: ^1.1.0
-  
+
+  # Logging framework
+  logger: ^2.0.2+1
+
+  # Sensor access for shake detection
+  sensors_plus: ^4.0.0
+
   # Voice recording package - more stable alternative
   record: ^5.0.4
-  
+
   # Speech to text package for voice recognition
   speech_to_text: ^7.0.0
-  
+
   # Permission handler for microphone
   permission_handler: ^11.1.0
-  
+
   # Path provider for file handling
   path_provider: ^2.1.1
-
-dependency_overrides:
-  sensors_plus: ^4.0.0
 
 dev_dependencies:
   flutter_test:
