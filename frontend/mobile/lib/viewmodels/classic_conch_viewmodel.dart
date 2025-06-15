@@ -35,9 +35,17 @@ class ClassicConchViewModel extends ChangeNotifier {
     });    // Initialize shake detection
     _shakeDetector.onShake.listen((_) {
       if (!isLoading) {
+        // Always trigger shake animation for UI feedback
         _shakeDetected = true;
         notifyListeners();
         
+        // Reset shake indicator after animation duration
+        Future.delayed(const Duration(milliseconds: 800), () {
+          _shakeDetected = false;
+          notifyListeners();
+        });
+        
+        // Business logic for shake handling
         if (_waitingForShake && _pendingVoiceQuestion.isNotEmpty) {
           // User shook after voice input - process the voice question
           _processVoiceQuestion();
@@ -46,18 +54,11 @@ class ClassicConchViewModel extends ChangeNotifier {
           if (!_hasAskedQuestion) {
             // Show message that they need to ask a question first
             conchResponse = 'You must ask the conch a question before shaking!';
-            notifyListeners();
             return;
           }
           // Direct shake with previous question - use default string pulling
           pullTheString();
         }
-        
-        // Reset shake indicator after a short delay
-        Future.delayed(const Duration(milliseconds: 500), () {
-          _shakeDetected = false;
-          notifyListeners();
-        });
       }
     });
     _shakeDetector.startListening();

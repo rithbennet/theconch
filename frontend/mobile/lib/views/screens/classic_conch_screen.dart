@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/classic_conch_viewmodel.dart';
+import '../widgets/shake_anim.dart';
 
 class ClassicConchScreen extends StatelessWidget {
   const ClassicConchScreen({super.key});
@@ -67,11 +68,13 @@ class ClassicConchScreen extends StatelessWidget {
                                   Icons.water_drop,
                                   size: 80,
                                   color: const Color(0xFFFF6B6B),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '🐚',
-                                  style: const TextStyle(fontSize: 60),
+                                ),                                const SizedBox(height: 8),
+                                ShakeAnimationWidget(
+                                  isShaking: vm.shakeDetected,
+                                  child: Text(
+                                    '🐚',
+                                    style: const TextStyle(fontSize: 60),
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
