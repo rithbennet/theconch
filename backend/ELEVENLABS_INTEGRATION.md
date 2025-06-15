@@ -16,30 +16,11 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 
 ### 2. Available Voices
 
-The service supports 18 different voices:
+The service supports only 1 voice:
 
-**Pre-recorded (Development)**
+**ElevenLabs API Voice**
 
-- `british_lady` - Pre-recorded British lady voice
-
-**ElevenLabs API Voices**
-
-- `rachel` - Natural and versatile
-- `drew` - Well-rounded and warm
-- `clyde` - War veteran
-- `paul` - Authoritative and confident
-- `domi` - Strong and assertive
-- `dave` - Conversational British accent
-- `fin` - Elderly Irish man
-- `sarah` - Soft and pleasant
-- `antoni` - Well-rounded American accent
-- `thomas` - Calm and reliable
-- `emily` - Calm and pleasant
-- `elli` - Emotional and expressive
-- `callum` - Hoarse and intense
-- `patrick` - Pleasant and engaging
-- `harry` - Anxious and stressed
-- `liam` - Calm and soothing
+- `deep_ah` - Deep Ah - Nosferatu Ancient Vampire Lord (Matthew Schmitz) - Deep male voice with eastern European accent for gothic horror
 - `dorothy` - Pleasant elderly woman
 
 ## Usage
@@ -49,11 +30,11 @@ The service supports 18 different voices:
 ```python
 from services.tts_service import generate_audio_for_text
 
-# Generate audio with default voice (british_lady for development)
-audio_path = generate_audio_for_text("Hello, world!")
+# Generate audio with default voice (deep_ah)
+audio_path = generate_audio_for_text("From the shadows, wisdom flows...")
 
-# Generate audio with specific voice
-audio_path = generate_audio_for_text("Hello, world!", voice="rachel")
+# Generate audio with specific voice (only deep_ah available)
+audio_path = generate_audio_for_text("Ancient knowledge emerges...", voice="deep_ah")
 ```
 
 ### Advanced Usage
@@ -71,8 +52,8 @@ voices = get_available_voices()
 print(f"Available voices: {list(voices.keys())}")
 
 # Validate voice before use
-if is_voice_available("rachel"):
-    audio_path = generate_audio_for_text("Text to speak", "rachel")
+if is_voice_available("deep_ah"):
+    audio_path = generate_audio_for_text("Ancient wisdom speaks...", "deep_ah")
 
     # Check if file was created successfully
     if check_audio_file_exists(audio_path):
@@ -117,7 +98,7 @@ The ElevenLabs integration uses optimized settings:
 ## Error Handling
 
 - **Missing API Key**: Falls back to placeholder audio
-- **Invalid Voice**: Automatically switches to "rachel" as fallback
+- **Invalid Voice**: Automatically switches to "deep_ah" as fallback
 - **API Errors**: Gracefully handles failures and provides feedback
 
 ## Testing
@@ -137,7 +118,7 @@ Generated files use clean, filesystem-safe naming:
 - Special characters are removed
 - Spaces become underscores
 - Format: `{clean_text}_{voice}.mp3`
-- Example: `hello_world_rachel.mp3`
+- Example: `ancient_wisdom_deep_ah.mp3`
 
 ## Performance Notes
 

@@ -30,7 +30,7 @@ async def test_voices_endpoint():
     print(f"Available voices: {len(voices_response['voices'])}")
     
     # Test a few specific voice availability checks
-    test_voices = ["rachel", "fin", "british_lady", "nonexistent_voice"]
+    test_voices = ["deep_ah", "nonexistent_voice"]
     for voice in test_voices:
         availability = await check_voice_availability(voice)
         status = "✅" if availability["available"] else "❌"
@@ -44,7 +44,7 @@ async def test_classic_route():
     print("🎯 Testing Classic Route")
     print("-" * 30)
     
-    test_voices = ["british_lady", "rachel", "fin", "sarah"]
+    test_voices = ["deep_ah"]
     
     for voice in test_voices:
         try:
@@ -63,10 +63,10 @@ async def test_food_route():
     print("-" * 30)
     
     test_cases = [
-        {"constraint": None, "voice": "sarah"},
-        {"constraint": "vegetarian", "voice": "rachel"},
-        {"constraint": "spicy", "voice": "fin"},
-        {"constraint": "healthy", "voice": "emily"},
+        {"constraint": None, "voice": "deep_ah"},
+        {"constraint": "vegetarian", "voice": "deep_ah"},
+        {"constraint": "spicy", "voice": "deep_ah"},
+        {"constraint": "healthy", "voice": "deep_ah"},
     ]
     
     for case in test_cases:
@@ -87,10 +87,10 @@ async def test_open_ended_route():
     print("-" * 30)
     
     test_cases = [
-        {"question": "What is the meaning of life?", "voice": "fin"},
-        {"question": "Should I quit my job?", "voice": "thomas"},
-        {"question": "Will I find love?", "voice": "dorothy"},
-        {"question": "What should I do today?", "voice": "rachel"},
+        {"question": "What is the meaning of life?", "voice": "deep_ah"},
+        {"question": "Should I quit my job?", "voice": "deep_ah"},
+        {"question": "Will I find love?", "voice": "deep_ah"},
+        {"question": "What should I do today?", "voice": "deep_ah"},
     ]
     
     for case in test_cases:

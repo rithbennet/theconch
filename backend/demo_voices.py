@@ -19,16 +19,9 @@ def demo_voices():
     print("🎭 ElevenLabs Voice Personality Demo")
     print("=" * 50)
     
-    # Sample texts for different voice types
+    # Sample texts for the deep_ah voice only
     demos = [
-        ("rachel", "Hello! I'm Rachel, your friendly and versatile assistant."),
-        ("sarah", "Hi there, I'm Sarah. I speak with a soft and pleasant tone."),
-        ("drew", "Greetings! I'm Drew, well-rounded and warm."),
-        ("dave", "Good day! I'm Dave, speaking with a conversational British accent."),
-        ("fin", "Ah, hello there! I'm Fin, an elderly Irish gentleman."),
-        ("emily", "Hello! I'm Emily, calm and pleasant to listen to."),
-        ("thomas", "Greetings. I'm Thomas, calm and reliable."),
-        ("antoni", "Hello! I'm Antoni with a well-rounded American accent."),
+        ("deep_ah", "From the shadows of time immemorial, wisdom flows... The shell has spoken."),
     ]
     
     print(f"Available voices: {len(get_available_voices())}")
@@ -44,9 +37,9 @@ def demo_voices():
             print(f"❌ Error: {e}")
     
     print("\n🎵 Demo complete! Check the audio/generated/ folder for files.")
-    print("\nTip: You can use any of these voices in your API requests:")
-    print('POST /api/classic {"voice": "rachel"}')
-    print('POST /api/what-to-eat {"constraint": "vegan", "voice": "sarah"}')
+    print("\nTip: You can use the deep_ah voice in your API requests:")
+    print('POST /api/classic {"voice": "deep_ah"}')
+    print('POST /api/what-to-eat {"constraint": "vegan", "voice": "deep_ah"}')
 
 
 def test_conch_responses():
@@ -62,10 +55,10 @@ def test_conch_responses():
         "Definitely not"
     ]
     
-    test_voices = ["rachel", "thomas", "emily", "sarah"]
+    test_voices = ["deep_ah"]
     
     for i, response in enumerate(conch_responses):
-        voice = test_voices[i % len(test_voices)]
+        voice = test_voices[0]  # Only use deep_ah
         try:
             print(f"🔮 '{response}' in {voice}'s voice: ", end="", flush=True)
             result = generate_audio_for_text(response, voice)
