@@ -14,10 +14,10 @@ class CulinaryOracleViewModel extends ChangeNotifier {
   String? errorMessage;
   String? lastAudioUrl;
   bool isListening = false;
-  bool _hasAskedQuestion= false;
-  String spokenText = '';
+  bool _hasAskedQuestion= false;  String spokenText = '';
   String _pendingVoiceQuestion = ''; // Store voice input waiting for shake
   bool _waitingForShake = false; // Flag to indicate shake is needed
+  bool _shakeDetected = false; // For animation purposes
   
   // Location and restaurant data
   String? _restaurantName;
@@ -25,14 +25,14 @@ class CulinaryOracleViewModel extends ChangeNotifier {
   String? _googleMapsUrl;
   double? _restaurantLatitude;
   double? _restaurantLongitude;
-  
-  final AudioPlayer audioPlayer = AudioPlayer();
+    final AudioPlayer audioPlayer = AudioPlayer();
+  final AudioPlayer shakeAudioPlayer = AudioPlayer(); // Separate player for shake sound
   final ShakeDetectorService _shakeDetector = ShakeDetectorService();
   final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   final Logger logger = Logger();
-  
-  bool get waitingForShake => _waitingForShake;
+    bool get waitingForShake => _waitingForShake;
+  bool get shakeDetected => _shakeDetected;
   String get pendingQuestion => _pendingVoiceQuestion;
   bool get hasAskedQuestion => _hasAskedQuestion;
   String? get restaurantName => _restaurantName;
@@ -41,9 +41,18 @@ class CulinaryOracleViewModel extends ChangeNotifier {
   double? get restaurantLatitude => _restaurantLatitude;
   double? get restaurantLongitude => _restaurantLongitude;
 
-  CulinaryOracleViewModel() {
-    // Initialize shake detection
+  CulinaryOracleViewModel() {    // Initialize shake detection
     _shakeDetector.onShake.listen((_) {
+      // Trigger shake animation
+      _shakeDetected = true;
+      notifyListeners();
+      
+      // Reset animation after a delay
+      Future.delayed(const Duration(milliseconds: 800), () {
+        _shakeDetected = false;
+        notifyListeners();
+      });
+      
       if (_waitingForShake && !isLoading) {
         // User shook after voice input - now get the answer
         _processVoiceQuestion();
@@ -57,8 +66,18 @@ class CulinaryOracleViewModel extends ChangeNotifier {
         }
         // Direct shake with previous question - use default oracle consultation
         consultOracle();
-      }
+      }    });
+
+    // Listen for shake start to play sound
+    _shakeDetector.onShakeStart.listen((_) {
+      _playShakeSound();
     });
+
+    // Listen for shake end to stop sound
+    _shakeDetector.onShakeEnd.listen((_) {
+      _stopShakeSound();
+    });
+
     _shakeDetector.startListening();
     
     // Initialize speech to text
@@ -327,12 +346,29 @@ class CulinaryOracleViewModel extends ChangeNotifier {
         errorMessage = 'Could not open Google Maps';
         notifyListeners();
       }
+    }  }
+
+  Future<void> _playShakeSound() async {
+    try {
+      await shakeAudioPlayer.play(AssetSource('audio/Shake Sound Effect.mp3'));
+      await shakeAudioPlayer.setReleaseMode(ReleaseMode.loop);
+    } catch (e) {
+      logger.e('Error playing shake sound: $e');
+    }
+  }
+
+  Future<void> _stopShakeSound() async {
+    try {
+      await shakeAudioPlayer.stop();
+    } catch (e) {
+      logger.e('Error stopping shake sound: $e');
     }
   }
 
   @override
   void dispose() {
     audioPlayer.dispose();
+    shakeAudioPlayer.dispose();
     _shakeDetector.dispose();
     _speechToText.stop();
     super.dispose();

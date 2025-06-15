@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/culinary_oracle_viewmodel.dart';
+import '../widgets/shake_anim.dart';
 
 class CulinaryOracleScreen extends StatelessWidget {
   const CulinaryOracleScreen({super.key});
@@ -67,16 +68,18 @@ class CulinaryOracleScreen extends StatelessWidget {
                           child: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
+                              children: [                                Icon(
                                   Icons.restaurant_menu,
                                   size: 60,
                                   color: const Color(0xFFFF6B6B),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  '🍲',
-                                  style: const TextStyle(fontSize: 40),
+                                ShakeAnimationWidget(
+                                  isShaking: vm.shakeDetected,
+                                  child: Text(
+                                    '🍲',
+                                    style: const TextStyle(fontSize: 40),
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(

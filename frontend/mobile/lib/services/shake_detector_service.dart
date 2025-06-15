@@ -5,6 +5,8 @@ import 'package:logger/logger.dart';
 
 class ShakeDetectorService {
   final StreamController<void> _shakeController = StreamController<void>();
+  final StreamController<void> _shakeStartController = StreamController<void>();
+  final StreamController<void> _shakeEndController = StreamController<void>();
   StreamSubscription<AccelerometerEvent>? _subscription;
   Timer? _shakeEndTimer;
 
@@ -15,10 +17,11 @@ class ShakeDetectorService {
   DateTime? _shakeStartTime;
   DateTime? _lastShakeTime;
   bool _isShaking = false;
-
   final Logger _logger = Logger();
 
   Stream<void> get onShake => _shakeController.stream;
+  Stream<void> get onShakeStart => _shakeStartController.stream;
+  Stream<void> get onShakeEnd => _shakeEndController.stream;
 
   void startListening() {
     _subscription = accelerometerEventStream().listen((event) {
@@ -31,13 +34,13 @@ class ShakeDetectorService {
       }
     });
   }
-
   void _handleShakeDetected() {
     final now = DateTime.now();
 
     if (!_isShaking) {
       _isShaking = true;
       _shakeStartTime = now;
+      _shakeStartController.add(null); // Emit shake start event
       _logger.d("Shake started!");
     }
 
@@ -48,7 +51,6 @@ class ShakeDetectorService {
       _handleShakeEnded();
     });
   }
-
   void _handleShakeEnded() {
     if (_isShaking && _shakeStartTime != null && _lastShakeTime != null) {
       final shakeDuration = _lastShakeTime!.difference(_shakeStartTime!);
@@ -59,14 +61,19 @@ class ShakeDetectorService {
       }
     }
 
+    if (_isShaking) {
+      _shakeEndController.add(null); // Emit shake end event
+    }
+
     _isShaking = false;
     _shakeStartTime = null;
     _lastShakeTime = null;
   }
-
   void dispose() {
     _subscription?.cancel();
     _shakeEndTimer?.cancel();
     _shakeController.close();
+    _shakeStartController.close();
+    _shakeEndController.close();
   }
 }

@@ -18,17 +18,30 @@ class AbyssViewModel extends ChangeNotifier {
   String _pendingVoiceQuestion = ''; // Store voice input waiting for shake
   bool _waitingForShake = false; // Flag to indicate shake is needed
   bool _hasAskedQuestion = false; // Track if user has asked a question
+  bool _shakeDetected = false; // For animation purposes
   final AudioPlayer audioPlayer = AudioPlayer();
+  final AudioPlayer shakeAudioPlayer = AudioPlayer(); // Separate player for shake sound
   final SpeechToText _speechToText = SpeechToText();
   final ShakeDetectorService _shakeDetector = ShakeDetectorService();
   bool _speechEnabled = false;
   final Logger _logger = Logger();
-
   bool get hasAskedQuestion => _hasAskedQuestion;
   bool get waitingForShake => _waitingForShake;
-  String get pendingQuestion => _pendingVoiceQuestion;  AbyssViewModel() {
-    // Initialize shake detection
+  bool get shakeDetected => _shakeDetected;
+  String get pendingQuestion => _pendingVoiceQuestion;
+
+  AbyssViewModel() {    // Initialize shake detection
     _shakeDetector.onShake.listen((_) {
+      // Trigger shake animation
+      _shakeDetected = true;
+      notifyListeners();
+      
+      // Reset animation after a delay
+      Future.delayed(const Duration(milliseconds: 800), () {
+        _shakeDetected = false;
+        notifyListeners();
+      });
+      
       if (!isLoading) {
         if (_waitingForShake && _pendingVoiceQuestion.isNotEmpty) {
           // User shook after voice input - process the voice question
@@ -38,8 +51,18 @@ class AbyssViewModel extends ChangeNotifier {
           abyssResponse = 'You must record a question with voice first, then shake!';
           notifyListeners();
         }
-      }
+      }    });
+
+    // Listen for shake start to play sound
+    _shakeDetector.onShakeStart.listen((_) {
+      _playShakeSound();
     });
+
+    // Listen for shake end to stop sound
+    _shakeDetector.onShakeEnd.listen((_) {
+      _stopShakeSound();
+    });
+
     _shakeDetector.startListening();
 
     // Initialize speech to text
@@ -265,12 +288,30 @@ class AbyssViewModel extends ChangeNotifier {
     spokenText = '';
     recognizedWords = '';
     _speechToText.stop();
-    notifyListeners();
+    notifyListeners();  }
+
+  Future<void> _playShakeSound() async {
+    try {
+      await shakeAudioPlayer.play(AssetSource('audio/Shake Sound Effect.mp3'));
+      await shakeAudioPlayer.setReleaseMode(ReleaseMode.loop);
+    } catch (e) {
+      _logger.e('Error playing shake sound: $e');
+    }
   }
+
+  Future<void> _stopShakeSound() async {
+    try {
+      await shakeAudioPlayer.stop();
+    } catch (e) {
+      _logger.e('Error stopping shake sound: $e');
+    }
+  }
+
   @override
   void dispose() {
     controller.dispose();
     audioPlayer.dispose();
+    shakeAudioPlayer.dispose();
     _shakeDetector.dispose();
     _speechToText.stop();
     super.dispose();

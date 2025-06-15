@@ -87,6 +87,6 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
-
   assets:
     - assets/images/
+    - assets/audio/
