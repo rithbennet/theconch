@@ -11,22 +11,18 @@ router = APIRouter(prefix="/api", tags=["classic"])
 @router.post("/classic", response_model=ConchResponse)
 async def get_classic_conch_answer(voice_choice: VoiceChoice):
     """
-    Provides a classic Yes/No style answer with customizable voice using ElevenLabs TTS.
-    Available voices: british_lady (pre-recorded), plus all ElevenLabs voices.
+    Provides a classic Yes/No style answer with deep_ah voice using ElevenLabs TTS.
+    Only deep_ah voice is available.
     """
     try:
-        # Match our answers to available audio files for british_lady
-        if voice_choice.voice == "british_lady":
-            answer = random.choice(["yes", "No", "Maybe", "Definitely not"])
-        else:
-            answer = random.choice(["Yes", "No", "Maybe", "Ask again later", "Definitely not"])
+        # Classic conch answers
+        answer = random.choice(["Yes", "No", "Maybe", "Ask again later", "Definitely not"])
         
         # Validate voice and use fallback if needed
         voice = voice_choice.voice
         if not is_voice_available(voice):
-            print(f"Warning: Voice '{voice}' not available. Using 'british_lady' as fallback.")
-            voice = 'british_lady'
-            answer = random.choice(["yes", "No", "Maybe", "Definitely not"])
+            print(f"Warning: Voice '{voice}' not available. Using 'deep_ah' as fallback.")
+            voice = 'deep_ah'
         
         # Generate audio using the improved TTS service
         audio_path = generate_audio_for_text(answer, voice)

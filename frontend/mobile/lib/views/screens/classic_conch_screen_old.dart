@@ -1,8 +1,8 @@
+/*
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/classic_conch_viewmodel.dart';
-import '../widgets/shake_anim.dart';
 
 class ClassicConchScreen extends StatelessWidget {
   const ClassicConchScreen({super.key});
@@ -12,53 +12,53 @@ class ClassicConchScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => ClassicConchViewModel(),
       child: Consumer<ClassicConchViewModel>(
-        builder: (context, vm, child) => Scaffold(
-          backgroundColor: const Color(0xFF0D1B2A),
-          appBar: AppBar(
-            backgroundColor: const Color(0xFF0D1B2A),
-            elevation: 0,
-            centerTitle: true,
-            title: Text(
-              'TheConch',
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-                fontSize: 22,
-                color: const Color(0xFFF0F0F0),
-              ),
-            ),
-          ),
-          body: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - 
-                    AppBar().preferredSize.height - 
-                    MediaQuery.of(context).padding.top,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Ask a question with voice, then shake the phone.',
-                      style: GoogleFonts.lato(
-                        fontSize: 16,
-                        fontStyle: FontStyle.italic,
-                        color: const Color(0xFFA0AEC0),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+        builder:
+            (context, vm, child) => Scaffold(
+              backgroundColor: const Color(0xFF0D1B2A),
+              appBar: AppBar(
+                backgroundColor: const Color(0xFF0D1B2A),
+                elevation: 0,
+                centerTitle: true,
+                title: Text(
+                  'TheConch',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 22,
+                    color: const Color(0xFFF0F0F0),
+                  ),
+                ),
+              ),              body: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - AppBar().preferredSize.height - MediaQuery.of(context).padding.top,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Ask a question with voice, then shake the phone.',
+                          style: GoogleFonts.lato(
+                            fontSize: 16,
+                            fontStyle: FontStyle.italic,
+                            color: const Color(0xFFA0AEC0),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                     Column(
                       children: [
                         Container(
-                          height: 200,
-                          width: 200,
+                          height: 250,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
+                            borderRadius: BorderRadius.circular(125),
                             color: const Color(0xFF1B263B),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFFFF6B6B).withValues(alpha: .3),
+                                color: const Color(
+                                  0xFFFF6B6B,
+                                ).withValues(alpha: .3),
                                 blurRadius: 20,
                                 spreadRadius: 5,
                               ),
@@ -70,21 +70,19 @@ class ClassicConchScreen extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons.water_drop,
-                                  size: 60,
+                                  size: 80,
                                   color: const Color(0xFFFF6B6B),
-                                ),                                const SizedBox(height: 8),
-                                ShakeAnimationWidget(
-                                  isShaking: vm.shakeDetected,
-                                  child: Text(
-                                    '🐚',
-                                    style: const TextStyle(fontSize: 60),
-                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '🐚',
+                                  style: const TextStyle(fontSize: 60),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'TheConch',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                     color: const Color(0xFFA0AEC0),
                                   ),
@@ -93,83 +91,121 @@ class ClassicConchScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 32),
                         vm.isLoading
                             ? const CircularProgressIndicator(
-                                color: Color(0xFFFF6B6B),
-                              )
+                              color: Color(0xFFFF6B6B),
+                            )
                             : Column(
-                                children: [
+                              children: [
+                                Text(
+                                  vm.conchResponse,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 36,
+                                    color: const Color(0xFFFF6B6B),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                if (vm.errorMessage != null) ...[
+                                  const SizedBox(height: 12),
                                   Text(
-                                    vm.conchResponse,
+                                    vm.errorMessage!,
                                     style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 28,
-                                      color: const Color(0xFFFF6B6B),
+                                      color: Colors.redAccent,
+                                      fontSize: 14,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  if (vm.errorMessage != null) ...[
-                                    const SizedBox(height: 12),
+                                ],
+                                if (vm.lastAudioUrl != null &&
+                                    vm.lastAudioUrl!.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 16.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(
+                                            vm.isPlayingAudio
+                                                ? Icons.pause_circle_filled
+                                                : Icons.play_circle_fill,
+                                            size: 48,
+                                            color: const Color(0xFFFF6B6B),
+                                          ),
+                                          tooltip:
+                                              vm.isPlayingAudio
+                                                  ? 'Pause Audio'
+                                                  : 'Play Audio',
+                                          onPressed:
+                                              vm.isLoading
+                                                  ? null
+                                                  : vm.playAudio,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          vm.isPlayingAudio
+                                              ? 'Playing...'
+                                              : 'Tap to play',
+                                          style: GoogleFonts.poppins(
+                                            color: const Color(0xFFA0AEC0),
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                      ],
+                    ),                        Column(
+                          children: [
+                            // Remove the "Pull the String" button
+                            // Debug display for recognized speech
+                            if (vm.recognizedWords.isNotEmpty) ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2D3748),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFF4A5568),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
                                     Text(
-                                      vm.errorMessage!,
+                                      'Debug - Recognized Speech:',
                                       style: GoogleFonts.poppins(
-                                        color: Colors.redAccent,
-                                        fontSize: 14,
+                                        color: const Color(0xFF63B3ED),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '"${vm.recognizedWords}"',
+                                      style: GoogleFonts.poppins(
+                                        color: const Color(0xFFA0AEC0),
+                                        fontSize: 14,
+                                        fontStyle: FontStyle.italic,
+                                      ),
                                     ),
                                   ],
-                                  if (vm.lastAudioUrl != null &&
-                                      vm.lastAudioUrl!.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 16.0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(
-                                              vm.isPlayingAudio
-                                                  ? Icons.pause_circle_filled
-                                                  : Icons.play_circle_fill,
-                                              size: 40,
-                                              color: const Color(0xFFFF6B6B),
-                                            ),
-                                            tooltip: vm.isPlayingAudio
-                                                ? 'Pause Audio'
-                                                : 'Play Audio',
-                                            onPressed: vm.isLoading ? null : vm.playAudio,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            vm.isPlayingAudio
-                                                ? 'Playing...'
-                                                : 'Tap to play',
-                                            style: GoogleFonts.poppins(
-                                              color: const Color(0xFFA0AEC0),
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                ],
+                                ),
                               ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        // Voice input section
+                              const SizedBox(height: 16),
+                            ],// Voice input section
                         if (vm.waitingForShake) ...[
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: const Color(0xFF1B263B),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: const Color(0xFF68D391),
-                                width: 2,
-                              ),
+                              border: Border.all(color: const Color(0xFF68D391), width: 2),
                             ),
                             child: Column(
                               children: [
@@ -196,8 +232,8 @@ class ClassicConchScreen extends StatelessWidget {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
+                                const SizedBox(height: 8),
                                 if (vm.pendingQuestion.isNotEmpty) ...[
-                                  const SizedBox(height: 8),
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
@@ -229,10 +265,7 @@ class ClassicConchScreen extends StatelessWidget {
                               ),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               child: Text(
                                 'Cancel & Start Over',
                                 style: GoogleFonts.poppins(fontSize: 12),
@@ -256,9 +289,10 @@ class ClassicConchScreen extends StatelessWidget {
                                   duration: const Duration(milliseconds: 500),
                                   child: Icon(
                                     Icons.mic,
-                                    color: vm.recognizedWords.isNotEmpty
-                                        ? const Color(0xFF68D391)
-                                        : const Color(0xFFFF6B6B),
+                                    color:
+                                        vm.recognizedWords.isNotEmpty
+                                            ? const Color(0xFF68D391)
+                                            : const Color(0xFFFF6B6B),
                                     size: 32,
                                   ),
                                 ),
@@ -268,9 +302,10 @@ class ClassicConchScreen extends StatelessWidget {
                                       ? 'Got it! Keep talking...'
                                       : 'Listening...',
                                   style: GoogleFonts.poppins(
-                                    color: vm.recognizedWords.isNotEmpty
-                                        ? const Color(0xFF68D391)
-                                        : const Color(0xFFFF6B6B),
+                                    color:
+                                        vm.recognizedWords.isNotEmpty
+                                            ? const Color(0xFF68D391)
+                                            : const Color(0xFFFF6B6B),
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -283,6 +318,22 @@ class ClassicConchScreen extends StatelessWidget {
                                     fontSize: 11,
                                   ),
                                   textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                // Visual indicator for listening
+                                Container(
+                                  height: 4,
+                                  width: 100,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF2D3748),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFF6B6B),
+                                      borderRadius: BorderRadius.circular(2),
+                                    ),
+                                  ),
                                 ),
                                 if (vm.spokenText.isNotEmpty) ...[
                                   const SizedBox(height: 8),
@@ -344,74 +395,56 @@ class ClassicConchScreen extends StatelessWidget {
                                 ),
                               ),
                             ],
-                          ),                        ] else ...[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          ),
+                        ] else ...[
+                          Column(
                             children: [
                               ElevatedButton.icon(
-                                onPressed: vm.isLoading ? null : vm.startListening,
+                                onPressed:
+                                    vm.isLoading ? null : vm.startListening,
                                 icon: const Icon(Icons.mic, size: 20),
                                 label: Text(
                                   'Ask with Voice',
                                   style: GoogleFonts.poppins(fontSize: 14),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4ECDC4),
-                                  foregroundColor: const Color(0xFF0D1B2A),
+                                  backgroundColor: const Color(0xFF4A5568),
+                                  foregroundColor: const Color(0xFFF0F0F0),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25.0),
                                   ),
-                                  elevation: 8,
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Tap the button above to record your question',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: const Color(0xFFA0AEC0),
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (vm.errorMessage != null &&
-                              vm.errorMessage!.contains('Speech')) ...[
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: vm.resetSpeechState,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF718096),
-                                foregroundColor: const Color(0xFFF0F0F0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20.0),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                              ),
-                              child: Text(
-                                'Reset & Try Again',
-                                style: GoogleFonts.poppins(fontSize: 12),
-                              ),
+                              if (vm.errorMessage != null &&
+                                  vm.errorMessage!.contains('Speech')) ...[
+                                const SizedBox(height: 8),
+                                ElevatedButton(
+                                  onPressed: vm.resetSpeechState,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF718096),
+                                    foregroundColor: const Color(0xFFF0F0F0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20.0),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),                                  ),
+                                  child: Text(
+                                    'Reset & Try Again',
+                                    style: GoogleFonts.poppins(fontSize: 12),                                  ),
+                              ],
                             ),
                           ],
-                        ],
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
             ),
-          ),
-        ),
       ),
     );
   }
 }
+*/

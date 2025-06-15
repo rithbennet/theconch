@@ -265,7 +265,7 @@ For local development with the deployed backend:
 - **Request Body:**
   ```json
   {
-    "voice": "british_lady"
+    "voice": "deep_ah"
   }
   ```
 - **Success Response:** `200 OK` with ConchResponse containing message and audio URL.
@@ -277,7 +277,7 @@ For local development with the deployed backend:
   ```json
   {
     "constraint": "vegan",
-    "voice": "british_lady"
+    "voice": "deep_ah"
   }
   ```
 - **Success Response:** `200 OK` with ConchResponse containing food suggestion and audio URL.
@@ -289,7 +289,7 @@ For local development with the deployed backend:
   ```json
   {
     "question": "Should I quit my job?",
-    "voice": "british_lady"
+    "voice": "deep_ah"
   }
   ```
 - **Success Response:** `200 OK` with ConchResponse containing cryptic wisdom and audio URL.

@@ -19,13 +19,13 @@ async def get_open_ended_answer(request: OpenQuestion):
         system_prompt = get_cryptic_answer_prompt()
         response = get_llm_response(request.question, system_prompt)
         
-        # Use voice from request or default to a mystical voice
-        voice = getattr(request, 'voice', 'fin')  # Fin has an elderly, mystical quality
+        # Use voice from request or default to a mystical vampire voice
+        voice = getattr(request, 'voice', 'deep_ah')  # Deep vampire voice for mystical ancient wisdom
         
         # Validate voice and fallback if needed
         if not is_voice_available(voice):
-            print(f"Warning: Voice '{voice}' not available. Using 'fin' as fallback.")
-            voice = 'q  '
+            print(f"Warning: Voice '{voice}' not available. Using 'deep_ah' as fallback.")
+            voice = 'deep_ah'
         
         # Generate audio with proper filename
         audio_path = generate_audio_for_text(response, voice)

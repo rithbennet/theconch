@@ -4,6 +4,8 @@ import 'package:theconch/services/shake_detector_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:logger/logger.dart';
 
 class CulinaryOracleViewModel extends ChangeNotifier {
@@ -16,14 +18,28 @@ class CulinaryOracleViewModel extends ChangeNotifier {
   String spokenText = '';
   String _pendingVoiceQuestion = ''; // Store voice input waiting for shake
   bool _waitingForShake = false; // Flag to indicate shake is needed
+  
+  // Location and restaurant data
+  String? _restaurantName;
+  String? _restaurantAddress;
+  String? _googleMapsUrl;
+  double? _restaurantLatitude;
+  double? _restaurantLongitude;
+  
   final AudioPlayer audioPlayer = AudioPlayer();
   final ShakeDetectorService _shakeDetector = ShakeDetectorService();
   final SpeechToText _speechToText = SpeechToText();
   bool _speechEnabled = false;
   final Logger logger = Logger();
+  
   bool get waitingForShake => _waitingForShake;
   String get pendingQuestion => _pendingVoiceQuestion;
   bool get hasAskedQuestion => _hasAskedQuestion;
+  String? get restaurantName => _restaurantName;
+  String? get restaurantAddress => _restaurantAddress;
+  String? get googleMapsUrl => _googleMapsUrl;
+  double? get restaurantLatitude => _restaurantLatitude;
+  double? get restaurantLongitude => _restaurantLongitude;
 
   CulinaryOracleViewModel() {
     // Initialize shake detection
@@ -68,16 +84,42 @@ class CulinaryOracleViewModel extends ChangeNotifier {
       },
     );
   }
-
   Future<void> consultOracle({String? constraint}) async {
     isLoading = true;
     errorMessage = null;
     _hasAskedQuestion = true;
+    // Clear previous restaurant data
+    _restaurantName = null;
+    _restaurantAddress = null;
+    _googleMapsUrl = null;
+    _restaurantLatitude = null;
+    _restaurantLongitude = null;
     notifyListeners();
+    
     try {
-      final result = await ApiService.askCulinaryOracle(constraint: constraint);
-      oracleResponse = result['answer'] ?? '...';
-      lastAudioUrl = result['audioUrl'];
+      // Get current location
+      Position? position = await _getCurrentLocation();
+      if (position == null) {
+        // If location failed, use fallback method
+        final result = await ApiService.askCulinaryOracle(constraint: constraint);
+        oracleResponse = result['answer'] ?? '...';
+        lastAudioUrl = result['audioUrl'];
+      } else {
+        // Use location-based API
+        final result = await ApiService.askCulinaryOracleWithLocation(
+          question: constraint,
+          latitude: position.latitude,
+          longitude: position.longitude,
+        );
+        
+        oracleResponse = result['answer'] ?? '...';
+        lastAudioUrl = result['audioUrl'];
+        _restaurantName = result['restaurantName'];
+        _restaurantAddress = result['address'];
+        _googleMapsUrl = result['googleMapsUrl'];
+        _restaurantLatitude = result['latitude'];
+        _restaurantLongitude = result['longitude'];
+      }
       
       if (lastAudioUrl != null && lastAudioUrl!.isNotEmpty) {
         logger.d('Attempting to play audio from $lastAudioUrl');
@@ -87,8 +129,19 @@ class CulinaryOracleViewModel extends ChangeNotifier {
           logger.e('Audio playback error: $audioError');
         }
       }    } catch (e) {
-      oracleResponse = 'Error!';
-      errorMessage = e.toString();
+      logger.e('Error in consultOracle: $e');
+      
+      // Provide user-friendly error messages
+      if (e.toString().contains('Network error') || e.toString().contains('Failed to connect')) {
+        oracleResponse = 'Connection failed!';
+        errorMessage = 'Unable to reach the oracle. Please check your internet connection and try again.';
+      } else if (e.toString().contains('TimeoutException') || e.toString().contains('timeout')) {
+        oracleResponse = 'Request timed out!';
+        errorMessage = 'The oracle is taking too long to respond. Please try again.';
+      } else {
+        oracleResponse = 'Something went wrong!';
+        errorMessage = 'An unexpected error occurred. Please try again later.';
+      }
     } finally {
       isLoading = false;
       _hasAskedQuestion = false; // Reset after answer is given - user must ask new question
@@ -180,7 +233,6 @@ class CulinaryOracleViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
   void resetVoiceState() {
     isListening = false;
     _waitingForShake = false;
@@ -189,6 +241,12 @@ class CulinaryOracleViewModel extends ChangeNotifier {
     errorMessage = null;
     oracleResponse = 'What should I eat?';
     _hasAskedQuestion = false;
+    // Clear restaurant data
+    _restaurantName = null;
+    _restaurantAddress = null;
+    _googleMapsUrl = null;
+    _restaurantLatitude = null;
+    _restaurantLongitude = null;
     _speechToText.stop();
     notifyListeners();
   }
@@ -202,7 +260,77 @@ class CulinaryOracleViewModel extends ChangeNotifier {
         logger.e('Audio playback error: $audioError');
       }
     }
-  }  @override
+  } 
+
+  Future<Position?> _getCurrentLocation() async {
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        errorMessage = 'Location services are disabled. Please enable them.';
+        notifyListeners();
+        return null;
+      }
+
+      // Check location permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          errorMessage = 'Location permissions are denied';
+          notifyListeners();
+          return null;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        errorMessage = 'Location permissions are permanently denied, we cannot request permissions.';
+        notifyListeners();
+        return null;
+      }      // Get current location
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      
+      logger.d('Current location: ${position.latitude}, ${position.longitude}');
+      return position;
+    } catch (e) {
+      logger.e('Error getting location: $e');
+      errorMessage = 'Failed to get location: ${e.toString()}';
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<void> openGoogleMaps() async {
+    if (_googleMapsUrl != null && _googleMapsUrl!.isNotEmpty) {
+      try {
+        final Uri url = Uri.parse(_googleMapsUrl!);
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          throw Exception('Could not launch $_googleMapsUrl');
+        }
+      } catch (e) {
+        logger.e('Error launching Google Maps: $e');
+        errorMessage = 'Could not open Google Maps';
+        notifyListeners();
+      }
+    } else if (_restaurantLatitude != null && _restaurantLongitude != null) {
+      // Fallback: create Google Maps URL with coordinates
+      final String mapsUrl = 'https://www.google.com/maps/search/?api=1&query=$_restaurantLatitude,$_restaurantLongitude';
+      try {
+        final Uri url = Uri.parse(mapsUrl);
+        if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+          throw Exception('Could not launch $mapsUrl');
+        }
+      } catch (e) {
+        logger.e('Error launching Google Maps with coordinates: $e');
+        errorMessage = 'Could not open Google Maps';
+        notifyListeners();
+      }
+    }
+  }
+
+  @override
   void dispose() {
     audioPlayer.dispose();
     _shakeDetector.dispose();

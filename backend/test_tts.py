@@ -32,23 +32,14 @@ def test_voice_utilities():
         print(f"  - {voice}: {description}")
     
     # Test voice availability
-    print(f"\nVoice 'rachel' available: {is_voice_available('rachel')}")
+    print(f"\nVoice 'deep_ah' available: {is_voice_available('deep_ah')}")
     print(f"Voice 'nonexistent' available: {is_voice_available('nonexistent')}")
     
 
 def test_british_lady_prerecorded():
-    """Test the pre-recorded british_lady voice"""
-    print("\n=== Testing Pre-recorded British Lady ===")
-    
-    test_phrases = ["yes", "no", "maybe", "definitely not"]
-    
-    for phrase in test_phrases:
-        result = get_speech_from_text(phrase, f"test_{phrase}.mp3", "british_lady")
-        print(f"'{phrase}' -> {result}")
-        
-        # Check if the file exists
-        file_exists = check_audio_file_exists(result)
-        print(f"  File exists: {file_exists}")
+    """Test has been removed - british_lady voice no longer available"""
+    print("\n=== British Lady Voice Removed ===")
+    print("Only deep_ah voice is available now")
 
 
 def test_elevenlabs_integration():
@@ -62,9 +53,9 @@ def test_elevenlabs_integration():
     
     print("✅ ElevenLabs API key found")
     
-    # Test with a short phrase and different voices
-    test_text = "Hello, this is a test of the ElevenLabs integration."
-    test_voices = ["rachel", "drew", "sarah"]
+    # Test with a short phrase using only deep_ah voice
+    test_text = "From the shadows of eternity, ancient wisdom flows... The shell has spoken."
+    test_voices = ["deep_ah"]
     
     for voice in test_voices:
         print(f"\nTesting voice: {voice}")
@@ -85,10 +76,10 @@ def test_file_generation():
     print("\n=== Testing File Generation ===")
     
     test_cases = [
-        ("Short text", "rachel"),
-        ("This is a longer piece of text to test filename generation and audio quality", "sarah"),
-        ("Text with special characters! @#$%^&*()", "drew"),
-        ("", "rachel"),  # Empty text
+        ("From the abyss of time, wisdom emerges", "deep_ah"),
+        ("The ancient spirits whisper through the ethereal void of existence and transcendence", "deep_ah"),
+        ("Text with special characters! @#$%^&*()", "deep_ah"),
+        ("", "deep_ah"),  # Empty text
     ]
     
     for text, voice in test_cases:

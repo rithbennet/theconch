@@ -35,6 +35,6 @@ app.include_router(open_ended_router)
 app.include_router(voices_router)
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def read_root():
     return {"Hello": "This is TheConch API"}

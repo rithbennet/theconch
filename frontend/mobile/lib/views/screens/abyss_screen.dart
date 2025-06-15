@@ -26,15 +26,20 @@ class AbyssScreen extends StatelessWidget {
                     color: const Color(0xFFF0F0F0),
                   ),
                 ),
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Peer into the unknown. Ask anything.',
+              ),              body: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - 
+                        AppBar().preferredSize.height - 
+                        MediaQuery.of(context).padding.top,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [Text(
+                      'Speak your question, then shake to consult the abyss.',
                       style: GoogleFonts.lato(
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
@@ -43,11 +48,11 @@ class AbyssScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     Column(
-                      children: [
-                        Container(
-                          height: 250,
+                      children: [                        Container(
+                          height: 200,
+                          width: 200,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(125),
+                            borderRadius: BorderRadius.circular(100),
                             color: const Color(0xFF1B263B),
                             boxShadow: [
                               BoxShadow(
@@ -65,19 +70,19 @@ class AbyssScreen extends StatelessWidget {
                               children: [
                                 Icon(
                                   Icons.psychology,
-                                  size: 80,
+                                  size: 60,
                                   color: const Color(0xFFFF6B6B),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   '🌊',
-                                  style: const TextStyle(fontSize: 60),
+                                  style: const TextStyle(fontSize: 40),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   'The Abyss',
                                   style: GoogleFonts.poppins(
-                                    fontSize: 16,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                     color: const Color(0xFFA0AEC0),
                                   ),
@@ -86,34 +91,7 @@ class AbyssScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 32),
-                        TextField(
-                          controller: vm.controller,
-                          enabled: !vm.isLoading,
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            color: const Color(0xFFF0F0F0),
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Type your question...',
-                            hintStyle: GoogleFonts.poppins(
-                              color: const Color(0xFFA0AEC0),
-                            ),
-                            filled: true,
-                            fillColor: const Color(0xFF1B263B),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
-                            ),
-                          ),
-                          onSubmitted: (_) => vm.askAbyss(),
-                        ),
-                        const SizedBox(height: 24),
-                        vm.isLoading
+                        const SizedBox(height: 24),                        vm.isLoading
                             ? const CircularProgressIndicator(
                               color: Color(0xFFFF6B6B),
                             )
@@ -123,7 +101,7 @@ class AbyssScreen extends StatelessWidget {
                                   vm.abyssResponse,
                                   style: GoogleFonts.poppins(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 28,
+                                    fontSize: 24,
                                     color: const Color(0xFFFF6B6B),
                                   ),
                                   textAlign: TextAlign.center,
@@ -159,8 +137,7 @@ class AbyssScreen extends StatelessWidget {
                       ],
                     ),
                     Column(
-                      children: [
-                        // Voice input section
+                      children: [                        // Voice input section
                         if (vm.isListening) ...[
                           Container(
                             padding: const EdgeInsets.all(16),
@@ -178,8 +155,7 @@ class AbyssScreen extends StatelessWidget {
                                   Icons.mic,
                                   color: const Color(0xFFFF6B6B),
                                   size: 32,
-                                ),
-                                const SizedBox(height: 8),
+                                ),                                const SizedBox(height: 8),
                                 Text(
                                   'Listening to your question...',
                                   style: GoogleFonts.poppins(
@@ -187,6 +163,14 @@ class AbyssScreen extends StatelessWidget {
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),
+                                ),                                const SizedBox(height: 8),
+                                Text(
+                                  'Take your time - you have up to 60 seconds\nTap "Stop Recording" when you\'re done',
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFFA0AEC0),
+                                    fontSize: 12,
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                                 if (vm.spokenText.isNotEmpty) ...[
                                   const SizedBox(height: 8),
@@ -210,7 +194,7 @@ class AbyssScreen extends StatelessWidget {
                                 onPressed: vm.stopListening,
                                 icon: const Icon(Icons.stop, size: 16),
                                 label: Text(
-                                  'Ask Abyss',
+                                  'Stop Recording',
                                   style: GoogleFonts.poppins(fontSize: 12),
                                 ),
                                 style: ElevatedButton.styleFrom(
@@ -239,56 +223,130 @@ class AbyssScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 16),
-                        ] else ...[
+                        ] else if (vm.waitingForShake) ...[
+                          // Show waiting for shake state
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1B263B),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: const Color(0xFF4ECDC4),
+                                width: 2,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Icon(
+                                  Icons.vibration,
+                                  color: const Color(0xFF4ECDC4),
+                                  size: 32,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Question Recorded!',
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFF4ECDC4),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Shake your device to consult the abyss',
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFFA0AEC0),
+                                    fontSize: 14,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                if (vm.pendingQuestion.isNotEmpty) ...[
+                                  const SizedBox(height: 12),
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0D1B2A),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '"${vm.pendingQuestion}"',
+                                      style: GoogleFonts.poppins(
+                                        color: const Color(0xFFF0F0F0),
+                                        fontSize: 12,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              ElevatedButton(
-                                onPressed: vm.isLoading ? null : vm.askAbyss,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFF6B6B),
-                                  foregroundColor: const Color(0xFF0D1B2A),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                  ),
-                                  elevation: 8,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 16,
-                                  ),
-                                  child: Text(
-                                    'Ask the Abyss',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ),
                               ElevatedButton.icon(
-                                onPressed:
-                                    vm.isLoading ? null : vm.startListening,
-                                icon: const Icon(Icons.mic, size: 20),
+                                onPressed: vm.resetState,
+                                icon: const Icon(Icons.refresh, size: 16),
                                 label: Text(
-                                  'Voice',
-                                  style: GoogleFonts.poppins(fontSize: 14),
+                                  'Record New Question',
+                                  style: GoogleFonts.poppins(fontSize: 12),
                                 ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF4A5568),
                                   foregroundColor: const Color(0xFFF0F0F0),
                                   shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                        ] else ...[
+                          // Default state - show voice recording button
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: vm.isLoading ? null : vm.startListening,
+                                icon: const Icon(Icons.mic, size: 20),
+                                label: Text(
+                                  'Record Question',
+                                  style: GoogleFonts.poppins(fontSize: 14),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF4ECDC4),
+                                  foregroundColor: const Color(0xFF0D1B2A),
+                                  shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25.0),
                                   ),
+                                  elevation: 8,
+                                ),
+                              ),
+                            ],                          ),
+                          const SizedBox(height: 16),
+                          // Just show instruction for voice input
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Tap the button above to record your question',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: const Color(0xFFA0AEC0),
+                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
                             ],
                           ),
                         ],
                       ],
+                    ),                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

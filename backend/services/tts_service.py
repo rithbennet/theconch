@@ -5,10 +5,102 @@ from elevenlabs.client import ElevenLabs
 from elevenlabs import VoiceSettings
 from config.settings import settings
 
+# Try to import audio processing libraries for reverb effects
+try:
+    import librosa
+    import soundfile as sf
+    import numpy as np
+    AUDIO_PROCESSING_AVAILABLE = True
+except ImportError:
+    AUDIO_PROCESSING_AVAILABLE = False
+    print("Audio processing libraries not available. Install librosa and soundfile for reverb effects.")
 
-def get_speech_from_text(text: str, filename: str, voice: str = "british_lady") -> str:
+
+def add_godly_reverb(audio_path: str, reverb_decay: float = 0.8, room_size: float = 0.9) -> str:
     """
-    Generate audio from text using either pre-recorded files or ElevenLabs API
+    Add godly reverb effect to an audio file for divine, ethereal atmosphere
+    Creates a rich, heavenly reverb like a voice speaking from the heavens
+    
+    Args:
+        audio_path: Path to the original audio file
+        reverb_decay: Reverb decay factor (0.0-1.0, default 0.8 for rich reverb)
+        room_size: Simulated room size (0.0-1.0, default 0.9 for cathedral-like space)
+        
+    Returns:
+        Path to the processed audio file with godly reverb
+    """
+    if not AUDIO_PROCESSING_AVAILABLE:
+        print("Audio processing not available, returning original file")
+        return audio_path
+    
+    try:
+        # Load the audio file
+        audio, sample_rate = librosa.load(audio_path, sr=None) # type: ignore
+        
+        # Create multiple reverb tails at different delays for rich, godly sound
+        reverb_delays = [0.03, 0.07, 0.13, 0.19, 0.29, 0.41, 0.53]  # Prime numbers for natural sound
+        reverb_gains = [0.6, 0.5, 0.4, 0.35, 0.3, 0.25, 0.2]  # Decreasing gains
+        
+        # Calculate the longest delay to size the output buffer
+        max_delay = max(reverb_delays)
+        max_delay_samples = int(max_delay * sample_rate)
+        
+        # Create output buffer with room for reverb tail
+        reverb_length = int(sample_rate * 2.0 * room_size)  # 2 seconds max reverb tail
+        output_audio = np.zeros(len(audio) + reverb_length) # type: ignore
+        
+        # Add the original audio
+        output_audio[:len(audio)] = audio
+        
+        # Add multiple reverb reflections for rich, divine sound
+        for delay, gain in zip(reverb_delays, reverb_gains):
+            delay_samples = int(delay * sample_rate)
+            adjusted_gain = gain * reverb_decay
+            
+            # Add reverb reflection
+            end_idx = delay_samples + len(audio)
+            if end_idx <= len(output_audio):
+                output_audio[delay_samples:end_idx] += audio * adjusted_gain
+        
+        # Add diffused reverb tail for heavenly atmosphere
+        for i in range(3):  # Multiple layers of diffusion
+            tail_delay = int(sample_rate * (0.1 + i * 0.15))  # Increasing delays
+            tail_gain = reverb_decay * (0.3 - i * 0.08)  # Decreasing gains
+            
+            if tail_delay + len(audio) <= len(output_audio):
+                # Add filtered reverb tail (simulate frequency response of large space)
+                filtered_audio = audio * tail_gain
+                output_audio[tail_delay:tail_delay + len(audio)] += filtered_audio
+        
+        # Apply gentle low-pass filtering to simulate air absorption (makes it more ethereal)
+        # Simple moving average for high-frequency rolloff
+        kernel_size = 3
+        kernel = np.ones(kernel_size) / kernel_size # type: ignore
+        output_audio = np.convolve(output_audio, kernel, mode='same') # type: ignore
+        
+        # Normalize to prevent clipping while preserving dynamics
+        max_val = np.max(np.abs(output_audio)) # type: ignore
+        if max_val > 0.95:
+            output_audio = output_audio * (0.95 / max_val)
+        
+        # Create output filename
+        base_name, ext = os.path.splitext(audio_path)
+        reverb_path = f"{base_name}_godly_reverb{ext}"
+        
+        # Save the processed audio
+        sf.write(reverb_path, output_audio, sample_rate) # type: ignore
+        
+        print(f"Godly reverb effect applied: {reverb_path}")
+        return reverb_path
+        
+    except Exception as e:
+        print(f"Error applying godly reverb effect: {e}")
+        return audio_path
+
+
+def get_speech_from_text(text: str, filename: str, voice: str = "deep_ah") -> str:
+    """
+    Generate audio from text using ElevenLabs API
     
     Args:
         text: The text to convert to speech
@@ -20,17 +112,7 @@ def get_speech_from_text(text: str, filename: str, voice: str = "british_lady") 
     """
     print(f"Generating speech: {text} using voice: {voice}")
     
-    # During development, we'll use our pre-recorded audio files for british_lady
-    if voice == "british_lady":
-        # Convert the answer to match our audio file names
-        text_lower = text.lower()
-        if text_lower == "definitely not":
-            file_name = "Definietly_not.mp3"  # Matching the existing file name
-        else:
-            file_name = f"{text}.mp3"
-        return f"/audio/classic/british_lady/{file_name}"
-    
-    # For other voices, use ElevenLabs API
+    # Use ElevenLabs API for all voices (only deep_ah is available now)
     try:
         if not settings.ELEVENLABS_API_KEY:
             print("Warning: ELEVENLABS_API_KEY not found. Using placeholder audio.")
@@ -40,38 +122,23 @@ def get_speech_from_text(text: str, filename: str, voice: str = "british_lady") 
         
         # Map voice names to ElevenLabs voice IDs
         voice_mapping = {
-            "rachel": "21m00Tcm4TlvDq8ikWAM",  # Rachel
-            "drew": "29vD33N1CtxCmqQRPOHJ",    # Drew
-            "clyde": "2EiwWnXFnvU5JabPnv8n",   # Clyde
-            "paul": "5Q0t7uMcjvnagumLfvZi",    # Paul
-            "domi": "AZnzlk1XvdvUeBnXmlld",    # Domi
-            "dave": "CYw3kZ02Hs0563khs1Fj",    # Dave
-            "fin": "D38z5RcWu1voky8WS1ja",     # Fin
-            "sarah": "EXAVITQu4vr4xnSDxMaL",   # Sarah
-            "antoni": "ErXwobaYiN019PkySvjV",  # Antoni
-            "thomas": "GBv7mTt0atIp3Br8iCZE",  # Thomas
-            "emily": "LcfcDJNUP1GQjkzn1xUU",   # Emily
-            "elli": "MF3mGyEYCl7XYWbV9V6O",    # Elli
-            "callum": "N2lVS1w4EtoT3dr4eOWO",  # Callum
-            "patrick": "ODq5zmih8GrVes37Dizd",  # Patrick
-            "harry": "SOYHLrjzK2X1ezoPC6cr",   # Harry
-            "liam": "TX3LPaxmHKxFdv7VOQHJ",    # Liam
-            "dorothy": "ThT5KcBeYPX3keUQqHPh", # Dorothy
+            "deep_ah": "Tj9l48J9AJbry5yCP5eW", # Matthew Schmitz - Nosferatu Ancient Vampire Lord
         }
         
-        # Get the voice ID, default to Rachel if not found
-        voice_id = voice_mapping.get(voice.lower(), "21m00Tcm4TlvDq8ikWAM")
+        # Get the voice ID, default to deep_ah (vampire voice) if not found
+        voice_id = voice_mapping.get(voice.lower(), "Tj9l48J9AJbry5yCP5eW")
         
-        # Generate audio with optimized settings
+        # Generate audio with highest quality settings optimized for vampire voice
+        # Using the finest model available with enhanced settings for gothic horror
         audio = client.generate(
             text=text,
             voice=voice_id,
-            model="eleven_multilingual_v2",
+            model="eleven_turbo_v2_5",  # Highest quality model available
             voice_settings=VoiceSettings(
-                stability=0.4,
-                similarity_boost=0.75,
-                style=0.0,
-                use_speaker_boost=True
+                stability=0.6,           # Higher stability for dramatic effect
+                similarity_boost=0.9,    # Maximum voice characteristics preservation
+                style=0.3,               # Slight style enhancement for gothic character
+                use_speaker_boost=True   # Enhanced clarity for deep voice
             )
         )
         
@@ -84,6 +151,11 @@ def get_speech_from_text(text: str, filename: str, voice: str = "british_lady") 
             for chunk in audio:
                 f.write(chunk)
         
+        # Apply godly reverb effect for vampire voice
+        if voice.lower() == "deep_ah":
+            print("Applying divine reverb effect for vampire voice...")
+            output_path = add_godly_reverb(output_path, reverb_decay=0.85, room_size=0.95)
+        
         print(f"Audio generated successfully: {output_path}")
         return f"/{output_path}"
         
@@ -93,7 +165,7 @@ def get_speech_from_text(text: str, filename: str, voice: str = "british_lady") 
         return f"audio/classic/{voice.lower()}_placeholder.mp3"
 
 
-def generate_audio_for_text(text: str, voice: str = "british_lady") -> str:
+def generate_audio_for_text(text: str, voice: str = "deep_ah") -> str:
     """
     Generate audio file for given text with proper file naming
     
@@ -106,8 +178,8 @@ def generate_audio_for_text(text: str, voice: str = "british_lady") -> str:
     """
     # Validate voice
     if not is_voice_available(voice):
-        print(f"Warning: Voice '{voice}' not available. Using 'rachel' as fallback.")
-        voice = "rachel"
+        print(f"Warning: Voice '{voice}' not available. Using 'deep_ah' as fallback.")
+        voice = "deep_ah"
     
     # Create a safe filename from the text
     safe_text = clean_filename(text)
@@ -124,24 +196,7 @@ def get_available_voices() -> dict[str, str]:
         Dictionary mapping voice names to descriptions
     """
     return {
-        "british_lady": "Pre-recorded British lady voice (development)",
-        "rachel": "Rachel - Natural and versatile",
-        "drew": "Drew - Well-rounded and warm",
-        "clyde": "Clyde - War veteran",
-        "paul": "Paul - Authoritative and confident",
-        "domi": "Domi - Strong and assertive",
-        "dave": "Dave - Conversational British accent",
-        "fin": "Fin - Elderly Irish man",
-        "sarah": "Sarah - Soft and pleasant",
-        "antoni": "Antoni - Well-rounded American accent",
-        "thomas": "Thomas - Calm and reliable",
-        "emily": "Emily - Calm and pleasant",
-        "elli": "Elli - Emotional and expressive",
-        "callum": "Callum - Hoarse and intense",
-        "patrick": "Patrick - Pleasant and engaging",
-        "harry": "Harry - Anxious and stressed",
-        "liam": "Liam - Calm and soothing",
-        "dorothy": "Dorothy - Pleasant elderly woman"
+        "deep_ah": "Deep Ah - Nosferatu Ancient Vampire Lord (Matthew Schmitz) - Deep male voice with eastern European accent for gothic horror"
     }
 
 

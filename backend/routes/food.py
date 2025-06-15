@@ -27,8 +27,8 @@ async def get_food_suggestion(request: FoodQuestion):
             # Generate annoyed response for non-food questions
             response_text = get_annoyed_response(request.question)
             
-            # Use a more stern voice for annoyed responses
-            voice = "fin"  # The mystical elderly voice sounds more annoyed
+            # Use the vampire voice for annoyed responses - perfect for gothic irritation
+            voice = "deep_ah"  # The vampire voice sounds perfectly annoyed
             
             # No restaurant suggestion for non-food questions
             restaurant_data = None
@@ -85,8 +85,8 @@ async def get_food_suggestion(request: FoodQuestion):
         
         # Validate voice and fallback if needed
         if not is_voice_available(voice):
-            print(f"Warning: Voice '{voice}' not available. Using 'sarah' as fallback.")
-            voice = 'sarah'
+            print(f"Warning: Voice '{voice}' not available. Using 'deep_ah' as fallback.")
+            voice = 'deep_ah'
         
         # Generate audio with proper filename
         audio_path = generate_audio_for_text(response_text, voice)
