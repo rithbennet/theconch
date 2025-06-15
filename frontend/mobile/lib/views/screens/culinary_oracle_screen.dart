@@ -196,7 +196,7 @@ class CulinaryOracleScreen extends StatelessWidget {
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            'no food bohoo :(',
+                                            'no food boohoo :(',
                                             style: GoogleFonts.poppins(
                                               fontWeight: FontWeight.w500,
                                               fontSize: 16,
