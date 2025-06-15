@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-    <key>NSMotionUsageDescription</key>
+<dict>    <key>NSMotionUsageDescription</key>
     <string>This app needs to be able to access your motion data to detect shake gestures</string>
     <key>NSSpeechRecognitionUsageDescription</key>
     <string>This app uses speech recognition to provide voice-based oracle responses and interactions</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>This app needs microphone access to record your voice for speech recognition and oracle interactions</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app needs location access to find nearby restaurants and food recommendations based on your location</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>This app needs location access to find nearby restaurants and food recommendations based on your location</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
