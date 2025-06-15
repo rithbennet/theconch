@@ -1,0 +1,31 @@
+# Alternative requirements.txt for Render deployment compatibility
+# Use this if the main requirements.txt still fails
+
+# --- Build Dependencies (must be first) ---
+setuptools>=71.0.0
+wheel>=0.42.0
+pip>=24.0
+
+# --- Core Framework ---
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# --- API Services & Clients ---
+google-generativeai>=0.8.0
+elevenlabs==1.2.0
+httpx==0.27.0
+
+# --- Audio Processing (Python 3.13 compatible versions) ---
+# Using specific versions known to work with Python 3.13
+numpy>=1.26.0,<3.0.0
+scipy>=1.11.0
+numba>=0.58.0
+librosa>=0.10.2
+soundfile>=0.12.1
+
+# --- Utilities ---
+python-dotenv==1.0.1
+
+# --- Development Tools (Optional but Recommended) ---
+black==24.4.2
+ruff==0.4.4
