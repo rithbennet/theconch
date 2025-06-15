@@ -25,7 +25,7 @@ async def get_open_ended_answer(request: OpenQuestion):
         # Validate voice and fallback if needed
         if not is_voice_available(voice):
             print(f"Warning: Voice '{voice}' not available. Using 'fin' as fallback.")
-            voice = 'fin'
+            voice = 'q  '
         
         # Generate audio with proper filename
         audio_path = generate_audio_for_text(response, voice)

@@ -8,7 +8,9 @@ class OpenQuestion(BaseModel):
 
 
 class FoodQuestion(BaseModel):
-    constraint: str | None = None  # Optional constraint
+    question: str  # What the user is asking about food
+    latitude: float | None = None  # User's latitude
+    longitude: float | None = None  # User's longitude
     voice: str = "sarah"  # Default to pleasant voice for food recommendations
 
 

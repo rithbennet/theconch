@@ -12,6 +12,7 @@ class Settings:
     # API Keys
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "")
+    SERPAPI_API_KEY: str = os.getenv("SERPAPI_KEY", "")
     
     # Server settings
     HOST: str = os.getenv("HOST", "0.0.0.0")
