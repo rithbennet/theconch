@@ -58,9 +58,14 @@ dependencies:
 
   # Speech to text package for voice recognition
   speech_to_text: ^7.0.0
-
   # Permission handler for microphone
   permission_handler: ^11.1.0
+
+  # Geolocator for GPS location services
+  geolocator: ^10.1.0
+
+  # URL launcher for opening Google Maps
+  url_launcher: ^6.2.2
 
   # Path provider for file handling
   path_provider: ^2.1.1

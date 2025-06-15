@@ -92,4 +92,42 @@ class ApiService {
       throw Exception('Failed to get abyss response');
     }
   }
+
+  static Future<Map<String, dynamic>> askCulinaryOracleWithLocation({
+    String? question,
+    required double latitude,
+    required double longitude,
+    String voice = 'sarah',
+  }) async {
+    final Map<String, dynamic> requestBody = {
+      'question': question ?? 'I want food',
+      'latitude': latitude,
+      'longitude': longitude,
+      'voice': voice,
+    };
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/what-to-eat'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(requestBody),
+    );    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final restaurant = data['restaurant'];
+      
+      return {
+        'answer': data['message'] ?? data['recommendation'] ?? 'No recommendation available',
+        'audioUrl': data['audio_url'] != null &&
+                data['audio_url'].toString().startsWith('/')
+            ? audioBaseUrl + data['audio_url']
+            : data['audio_url'],
+        'restaurantName': restaurant?['name'] ?? data['restaurant_name'] ?? data['name'],
+        'latitude': restaurant?['latitude'] ?? data['restaurant_latitude'] ?? data['latitude'],
+        'longitude': restaurant?['longitude'] ?? data['restaurant_longitude'] ?? data['longitude'],
+        'address': restaurant?['address'] ?? data['address'],
+        'googleMapsUrl': restaurant?['google_maps_url'] ?? data['google_maps_url'],
+      };
+    } else {
+      throw Exception('Failed to get culinary oracle response with location');
+    }
+  }
 }
